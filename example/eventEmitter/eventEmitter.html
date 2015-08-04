@@ -1,0 +1,339 @@
+<!doctype html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+        <meta charset="utf-8">
+        <title>自定义事件模块demo</title>
+        <link rel="stylesheet" href="../css/bootstrap/css/bootstrap.min.css">
+        <link rel="stylesheet" href="../css/main.css">
+        <style type="text/css">
+            .task-list li{
+                border-bottom:1px solid #CCC;
+                line-height:26px;
+            }
+            .split-block{
+                border:1px solid #ddd;
+                border-radius:4px;
+                padding:5px;
+                margin:5px;
+            }
+        </style>
+    </head>
+    <body>
+        <header class="container">
+            <div class="row">
+                <div class="col-xs-12 text-center">
+                    <h3>自定义事件模块</h3>
+                </div>
+            </div>
+        </header>
+        <div class="out-box container">
+            <div class="col-sm-2 nav-container">
+                <div class="nav-slide bs-docs-sidebar">
+                    <ul class="nav">
+                        <li><a href="#">自定义事件</a></li>
+                        <li><a href="#code1">代码实现(推荐)</a></li>
+                        <li><a href="#code2">代码实现二</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-sm-10 container">
+                <div class="form-horizontal">
+                    <div class="form-group">
+                        <label for="rc4-key" class="col-sm-2 control-label">输入框内容的改变:</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control source" placeholder="key">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="rc4-key" class="col-sm-2 control-label">改变后值:</label>
+                        <div class="col-sm-8">
+                            <div class="target-res"></div>
+                        </div>
+                     </div>
+                     <div class="form-group">
+                         <label for="rc4-key" class="col-sm-2 control-label">是否比前一个值大:</label>
+                         <div class="col-sm-8">
+                             <div class="compare-res"></div>
+                         </div>
+                      </div>
+                 </div>
+
+                 <div class="row">
+                     <a id="code1"></a>
+                     <p class="col-sm-2 text-right">代码实现(推荐)：</p>
+                     <div class="col-sm-8">
+                         <pre>
+ appcan.define('autoUpdate',function($,exports,module){
+     var eventEmitter = appcan.require('eventEmitter');
+     var autoUpdate = {
+         init:function(source){
+             this.source = source['source'];
+             this.target= source['target'];
+             this.sourceEle = $(this.source);
+             this.targetEle = $(this.target);
+             this.bindEvent();
+         },
+         bindEvent:function(){
+             var preVal = '';
+             var self = this;
+             this.sourceEle.on('blur',function(){
+                 var currVal = $(this).val();
+                 if(preVal === currVal){
+
+                 }else{
+                     self.emmit('valueChange',self,currVal);
+                     preVal = currVal;
+                 }
+             });
+             this.on('valueChange',function(currVal){
+                 var nowVal = this.targetEle.html();
+                 if(nowVal < currVal){
+                     self.emmit('more',self,nowVal,currVal);
+                 }else{
+                     self.emmit('notMore',self,nowVal,currVal);
+                 }
+                 this.targetEle.html(currVal)
+             })
+         }
+     };
+
+     //使autoUpdate对象支持自定义事件
+     appcan.extend(autoUpdate,eventEmitter);
+
+     module.exports = autoUpdate
+ });
+
+ //使用appcan use 方法，回调有两个变量，一个是最常用的dom操作 推荐做法
+ appcan.use('autoUpdate',function($,autoUpdate){
+     autoUpdate.init({
+         source:'.source',
+         target:'.target-res'
+     });
+
+     autoUpdate.on('changeVal',function(val){
+         console.log(val);
+     });
+
+     autoUpdate.on('more',function(val){
+         $('.compare-res').html('是');
+     });
+
+     autoUpdate.on('notMore',function(val){
+         $('.compare-res').html('否');
+     });
+
+ });
+                         </pre>
+                     </div>
+                 </div>
+
+                 <div class="row">
+                     <a id="code2"></a>
+                     <p class="col-sm-2 text-right">代码实现二：</p>
+                     <div class="col-sm-8">
+                         <pre>
+ var eventEmitter = appcan.eventEmitter;
+ var autoUpdate = {
+     init:function(source){
+         this.source = source['source'];
+         this.target= source['target'];
+         this.sourceEle = $(this.source);
+         this.targetEle = $(this.target);
+         this.bindEvent();
+     },
+     bindEvent:function(){
+         var preVal = '';
+         var self = this;
+         this.sourceEle.on('blur',function(){
+             var currVal = $(this).val();
+             if(preVal === currVal){
+
+             }else{
+                 self.emmit('valueChange',self,currVal);
+                 preVal = currVal;
+             }
+         });
+         this.on('valueChange',function(currVal){
+             var nowVal = this.targetEle.html();
+             if(nowVal < currVal){
+                 self.emmit('more',self,nowVal,currVal);
+             }else{
+                 self.emmit('notMore',self,nowVal,currVal);
+             }
+             this.targetEle.html(currVal)
+         })
+     }
+ };
+ //使autoUpdate对象支持自定义事件
+ appcan.extend(autoUpdate,eventEmitter);
+
+
+
+ //与zepto结合的使用方式，不推荐
+ $(document).ready(function(){
+     autoUpdate.init({
+         source:'.source',
+         target:'.target-res'
+     });
+
+     autoUpdate.on('changeVal',function(val){
+         console.log(val);
+     });
+
+     autoUpdate.on('more',function(val){
+         $('.compare-res').html('是');
+     });
+
+     autoUpdate.on('notMore',function(val){
+         $('.compare-res').html('否');
+     });
+
+ });
+                         </pre>
+                     </div>
+                 </div>
+            </div>
+        </div>
+        <script id="task-temp" type="text/appcan-template">
+           <%for(var k in tasks){%>
+               <li>
+                   <span style="color:rgba(234,22,234,0.6);display:inline-block;padding-right:30px;">
+                       <%-k%>
+                   </span>
+                   <span>
+                       <% if(tasks[k].length > 40){ %>
+                           <%-tasks[k].substr(0,40)+'...'%>
+                       <%} else{%>
+                           <%-tasks[k]%>
+                       <%}%>
+                   </span>
+                   <button data-task-name="<%-k%>" type="button" class="close"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+               </li>
+           <%}%>
+        </script>
+        <script type="text/javascript" src="../../dist/appcan.js"></script>
+        <script type="text/javascript" src="../js/main.js"></script>
+        <script type="text/javascript">
+
+            //定义自动更新模块
+            appcan.define('autoUpdate',function($,exports,module){
+                var eventEmitter = appcan.require('eventEmitter');
+                var autoUpdate = {
+                    init:function(source){
+                        this.source = source['source'];
+                        this.target= source['target'];
+                        this.sourceEle = $(this.source);
+                        this.targetEle = $(this.target);
+                        this.bindEvent();
+                    },
+                    bindEvent:function(){
+                        var preVal = '';
+                        var self = this;
+                        this.sourceEle.on('blur',function(){
+                            var currVal = $(this).val();
+                            if(preVal === currVal){
+
+                            }else{
+                                self.emmit('valueChange',self,currVal);
+                                preVal = currVal;
+                            }
+                        });
+                        this.on('valueChange',function(currVal){
+                            var nowVal = this.targetEle.html();
+                            if(nowVal < currVal){
+                                self.emmit('more',self,nowVal,currVal);
+                            }else{
+                                self.emmit('notMore',self,nowVal,currVal);
+                            }
+                            this.targetEle.html(currVal)
+                        })
+                    }
+                };
+                //使autoUpdate对象支持自定义事件
+                appcan.extend(autoUpdate,eventEmitter);
+                module.exports = autoUpdate
+            });
+
+            //使用appcan use 方法，回调有两个变量，一个是最常用的dom操作 推荐做法
+            appcan.use('autoUpdate',function($,autoUpdate){
+                autoUpdate.init({
+                    source:'.source',
+                    target:'.target-res'
+                });
+
+                autoUpdate.on('changeVal',function(val){
+                    console.log(val);
+                });
+
+                autoUpdate.on('more',function(val){
+                    $('.compare-res').html('是');
+                });
+
+                autoUpdate.on('notMore',function(val){
+                    $('.compare-res').html('否');
+                });
+
+            });
+
+            /*
+            var eventEmitter = appcan.eventEmitter;
+            var autoUpdate = {
+                init:function(source){
+                    this.source = source['source'];
+                    this.target= source['target'];
+                    this.sourceEle = $(this.source);
+                    this.targetEle = $(this.target);
+                    this.bindEvent();
+                },
+                bindEvent:function(){
+                    var preVal = '';
+                    var self = this;
+                    this.sourceEle.on('blur',function(){
+                        var currVal = $(this).val();
+                        if(preVal === currVal){
+
+                        }else{
+                            self.emmit('valueChange',self,currVal);
+                            preVal = currVal;
+                        }
+                    });
+                    this.on('valueChange',function(currVal){
+                        var nowVal = this.targetEle.html();
+                        if(nowVal < currVal){
+                            self.emmit('more',self,nowVal,currVal);
+                        }else{
+                            self.emmit('notMore',self,nowVal,currVal);
+                        }
+                        this.targetEle.html(currVal)
+                    })
+                }
+            };
+            //使autoUpdate对象支持自定义事件
+            appcan.extend(autoUpdate,eventEmitter);
+
+
+
+            //与zepto结合的使用方式，不推荐
+            $(document).ready(function(){
+                autoUpdate.init({
+                    source:'.source',
+                    target:'.target-res'
+                });
+
+                autoUpdate.on('changeVal',function(val){
+                    console.log(val);
+                });
+
+                autoUpdate.on('more',function(val){
+                    $('.compare-res').html('是');
+                });
+
+                autoUpdate.on('notMore',function(val){
+                    $('.compare-res').html('否');
+                });
+
+            });*/
+        </script>
+    </body>
+</html>

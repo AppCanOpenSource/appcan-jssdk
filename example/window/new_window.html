@@ -1,0 +1,110 @@
+<!doctype html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+        <meta charset="utf-8">
+        <title>新窗口</title>
+        <link rel="stylesheet" href="../css/bootstrap/css/bootstrap.min.css">
+        <link rel="stylesheet" href="../css/main.css">
+    </head>
+    <body>
+        <header class="container">
+            <div class="row">
+                <div class="col-xs-12 text-center">
+                    <h3>新窗口</h3>
+                </div>
+            </div>
+        </header>
+        <div class="out-box container">
+            <div class="col-sm-2 nav-container">
+                <div class="nav-slide bs-docs-sidebar">
+                    <ul class="nav">
+                        
+                    </ul>
+                </div>
+            </div>
+            <div class="col-sm-10 container">
+                <div class="form-horizontal">
+                    <div class="form-group">
+                        <label for="rc4-key" class="col-sm-2 control-label">动画时长：:</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" value="1000" id="anim-duration" placeholder="动画时长">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="rc4-key" class="col-sm-2 control-label">
+                            打开一个提示框:
+                        </label>
+                        <div class="col-sm-8">
+                             <label>
+                                选择动画类型：
+                                <select id="anim-type">
+                                    <option value="0">无动画</option>
+                                    <option value="1">从左向右推入</option>
+                                    <option value="2">从右向左推入</option>
+                                    <option value="3">从上向下推入</option>
+                                    <option value="4">从下向上推入</option>
+                                    <option value="5">淡入淡出</option>
+                                    <option value="6">左翻页</option>
+                                    <option value="7">右翻页</option>
+                                    <option value="8">水波纹</option>
+                                    <option value="9">由左向右切入</option>
+                                    <option value="10">由右向左切入</option>
+                                    <option value="11">由上先下切入</option>
+                                    <option value="12">由下向上切入</option>
+                                    <option value="13">由左向右切出</option>
+                                    <option value="14">由右向左切出</option>
+                                    <option value="15">由上向下切出</option>
+                                    <option value="16">由下向上切出</option>
+                                </select>
+                            </label>
+                            <input type="button" class="btn btn-default btn-close" value="关闭">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="rc4-key" class="col-sm-2 control-label">
+                            详细信息:
+                        </label>
+                        <div class="col-sm-8">
+                            <ul class="list-unstyled">
+                            </ul>
+                        </div>
+                    </div>
+                 </div>
+                 <div class="row">
+                     <a id="explain"></a>
+                     <p class="col-sm-2 text-right">模块说明：</p>
+                     <div class="col-sm-8">
+                         <p>
+                             通过窗口模块可以使用内置的各种窗口
+                         </p>
+                     </div>
+                 </div>
+
+
+                 
+            </div>
+        </div>
+        <script type="text/javascript" src="../../dist/appcan.js"></script>
+        <script type="text/javascript" src="../js/main.js"></script>
+        <script type="text/javascript">
+            function show(){
+                alert('aaaa');
+            }
+            appcan.ready(function(){
+                var toastCount = 0;
+                
+                appcan.use('window',function($,win){
+                    
+                    $('.btn-close').tap(function(){
+                        win.close({
+                            animId:$("#anim-type").val(),
+                            animDuration:$("#anim-duration").val()
+                        });
+                    });
+                });
+                
+            });
+        </script>
+    </body>
+</html>

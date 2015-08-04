@@ -1,0 +1,433 @@
+<!doctype html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+        <meta charset="utf-8">
+        <title>关于窗口demo</title>
+        <link rel="stylesheet" href="../css/bootstrap/css/bootstrap.min.css">
+        <link rel="stylesheet" href="../css/main.css">
+    </head>
+    <body>
+        <header class="container">
+            <div class="row">
+                <div class="col-xs-12 text-center">
+                    <h3>关于窗口的demo</h3>
+                    
+                </div>
+            </div>
+        </header>
+        <div class="out-box container">
+            <div class="col-sm-2 nav-container">
+                <div class="nav-slide bs-docs-sidebar">
+                    <ul class="nav">
+                        <li><a href="#">窗口demo</a></li>
+                        <li><a href="#explain">模块说明</a></li>
+                        <li><a href="#code1">代码实现(推荐)</a></li>
+                        <li><a href="#code2">代码实现二</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-sm-10 container">
+                <div class="form-horizontal">
+                    <div class="form-group">
+                        <label for="rc4-key" class="col-sm-2 control-label">
+                            打开一个提示框:
+                        </label>
+                        <div class="col-sm-8">
+                            <input type="button" class="btn btn-default btn-alert" value="弹出确认框">
+                            <input type="button" class="btn btn-default btn-open-toast" value="打开一个toast">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="rc4-key" class="col-sm-2 control-label">
+                            打开一个新窗口:
+                        </label>
+                        <div class="col-sm-8">
+                            <label>
+                                选择动画类型：
+                                <select id="anim-type" style="">
+                                    <option value="0" style="font-size:100px;">无动画</option>
+                                    <option value="1">从左向右推入</option>
+                                    <option value="2">从右向左推入</option>
+                                    <option value="3">从上向下推入</option>
+                                    <option value="4">从下向上推入</option>
+                                    <option value="5">淡入淡出</option>
+                                    <option value="6">左翻页</option>
+                                    <option value="7">右翻页</option>
+                                    <option value="8">水波纹</option>
+                                    <option value="9">由左向右切入</option>
+                                    <option value="10">由右向左切入</option>
+                                    <option value="11">由上先下切入</option>
+                                    <option value="12">由下向上切入</option>
+                                    <option value="13">由左向右切出</option>
+                                    <option value="14">由右向左切出</option>
+                                    <option value="15">由上向下切出</option>
+                                    <option value="16">由下向上切出</option>
+                                </select>
+                            </label>
+                            <label>
+                                窗口类型：
+                                <select id="window-type">
+                                    <option value="0">普通窗口</option>
+                                    <option value="1">OAuth 窗口</option>
+                                    <option value="2">加密页面窗口</option>
+                                    <option value="4">强制刷新</option>
+                                    <option value="8">url用系统浏览器打开</option>
+                                    <option value="16">view不透明</option>
+                                    <option value="32">隐藏的window</option>
+                                    <option value="64">等待popOver加载完毕后显示</option>
+                                    <option value="128">支持手势</option>
+                                    <option value="256">标记opn的window上一个window不隐藏</option>
+                                    <option value="512">标记呗open的浮动窗口用友打开wabapp</option>
+                                </select>
+                            </label>
+                            <input type="button" class="btn btn-default btn-open-window" value="打开一个新窗口">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="rc4-key" class="col-sm-2 control-label">
+                            打开一个浮动窗口:
+                        </label>
+                        <div class="col-sm-8">
+                             <label>
+                                窗口类型（快捷键 : 左滑页面）：
+                                <select id="popover-type">
+                                    <option value="0">普通窗口</option>
+                                    <option value="1">OAuth 窗口</option>
+                                    <option value="2">加密页面窗口</option>
+                                    <option value="4">强制刷新</option>
+                                    <option value="8">url用系统浏览器打开</option>
+                                    <option value="16">view不透明</option>
+                                    <option value="32">隐藏的window</option>
+                                    <option value="64">等待popOver加载完毕后显示</option>
+                                    <option value="128">支持手势</option>
+                                    <option value="256">标记opn的window上一个window不隐藏</option>
+                                    <option value="512">标记呗open的浮动窗口用友打开wabapp</option>
+                                </select>
+                            </label>
+                            <input type="button" class="btn btn-default btn-open-popover" value="打开一个浮动窗口">
+                            <input type="button" class="btn btn-default btn-close-popover" value="关闭浮动窗口">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="rc4-key" class="col-sm-2 control-label">
+                            详细信息:
+                        </label>
+                        <div class="col-sm-8">
+                            <ul class="list-unstyled">
+                                <li>是否支持touch：<code class="is-support-touch-res"></code></li>
+                                <li>是否支持css 3d：<code class="is-support-css3d-res"></code></li>
+                                <li>操作系统：<code class="os-res"></code></li>
+                                <li>操作系统版本：<code class="os-version-res"></code></li>
+                                <li>浏览器:<code class="runtime-res"></code></li>
+                                <li>浏览器版本:<code class="runtime-version-res"></code></li>
+                            </ul>
+                        </div>
+                    </div>
+                 </div>
+                 <div class="row">
+                     <a id="explain"></a>
+                     <p class="col-sm-2 text-right">模块说明：</p>
+                     <div class="col-sm-8">
+                         <p>
+                             通过窗口模块可以使用内置的各种窗口
+                         </p>
+                     </div>
+                 </div>
+
+                 <div class="row">
+                     <a id="code1"></a>
+                     <p class="col-sm-2 text-right">代码实现(推荐)：</p>
+                     <div class="col-sm-8">
+                         <pre>
+ appcan.ready(function(){
+                var toastCount = 0;
+                appcan.use('window',function($,win){
+                    
+                    $('.btn-alert').tap(function(){
+                        win.alert({
+                            title:'提示',
+                            content:'这是一个确认框',
+                            buttons:['确认','取消','ok'],
+                            callback:function(err,res){
+                                if(err){
+                                    console.log(err);
+                                    return;
+                                }
+                                console.log(res);
+                            }
+                        });
+                    });
+                    
+                    $('.btn-open-toast').tap(function(){
+                        if(!(toastCount%2)){
+                            win.openToast({
+                                type:0,
+                                duration:3000,
+                                msg:'这是一个toast'
+                            });
+                            $(this).val('关闭一个toast');
+                        }else{
+                             win.closeToast();
+                             $(this).val('打开一个toast');
+                        }
+                        toastCount++;
+                    });
+                    
+                    $('.btn-open-window').tap(function(){
+                        //显示日志
+                        win.open({
+                            name:"new-window",
+                            dataType:0,
+                            data:'./new_window.html',
+                            aniId:$('#anim-type').val(),
+                            width:'80%',
+                            height:'80%',
+                            type:$("#window-type").val()
+                        });
+                    });
+                    
+                    $('.btn-evaluate-script').tap(function(){
+                        //默认窗口执行脚本
+                        win.evaluateScript({
+                            name:'',
+                            type:0,
+                            scriptContent:$('.script-content').val()
+                        });
+                    });
+                    
+                    //设置设置上下回弹效果
+                    win.setBounce({
+                        bounceType:1,
+                        color:"#A0E",
+                        downEndCall:function(){
+                            alert('下边界');
+                            win.resetBounceView(1);
+                        },
+                        upEndCall:function(){
+                            alert('上边界');
+                            win.resetBounceView(0);
+                        }
+                    });
+                    
+                    $('.btn-win-move').tap(function(){
+                        alert('移动 浮动框');
+                        win.moveAnim({
+                            top:-300,
+                            left:-300,
+                            duration:1000,
+                            callback:function(){
+                                alert('move over！');
+                            }
+                        });
+                        
+                    });
+                    
+                    $('.btn-open-popover').tap(function(){
+                        win.openPopover({
+                            name:'slider-nav',
+                            dataType:0,
+                            data:'123',
+                            url:'./new_popover.html',
+                            width:200,
+                            height:800,
+                            top:-30,
+                            left:-30,
+                            fontSize:12,
+                            type:$('#popover-type').val()
+                        });
+                    });
+                    
+                    $(document).on('swipeRight',function(){
+                        win.openPopover({
+                            name:'slider-nav',
+                            dataType:0,
+                            data:'123',
+                            url:'./new_popover.html',
+                            width:200,
+                            height:800,
+                            top:-10,
+                            left:-30,
+                            fontSize:12,
+                            type:$('#popover-type').val()
+                        });
+                    });
+                    $(document).on('swipeLeft',function(){
+                         win.closePopover('slider-nav'); 
+                    });
+                    
+                    $('.btn-close-popover').tap(function(){
+                        alert('close');
+                        win.closePopover('slider-nav'); 
+                    });
+                    
+                    
+                });
+                
+            });
+                         </pre>
+                     </div>
+                 </div>
+
+                 <div class="row">
+                     <a id="code2"></a>
+                     <p class="col-sm-2 text-right">代码实现二：</p>
+                     <div class="col-sm-8">
+                         <pre>
+ ///与zepto结合的使用方式，不推荐
+ $(document).ready(function(){
+     var detect = appcan.detect;
+     $('.ua-info').val(detect.ua);//显示ua信息
+     $('.runtime-res').html(detect.browser.name);//显示浏览器名称
+     //浏览器版本号
+     $('.runtime-version-res').html(detect.browser.version);
+     $('.os-res').html(detect.os.name);//显示操作系统
+     $('.os-version-res').html(detect.os.version);//显示操作系统版本号
+     //是否支持touch事件
+     $('.is-support-touch-res').html(detect.event.supportTouch);
+     //是否支持css 3d
+     $('.is-support-css3d-res').html(detect.css.support3d);
+ });
+                         </pre>
+                     </div>
+                 </div>
+            </div>
+        </div>
+        <script type="text/javascript" src="../../dist/appcan.js"></script>
+        <script type="text/javascript" src="../js/main.js"></script>
+        <script type="text/javascript">
+            appcan.ready(function(){
+                var toastCount = 0;
+                appcan.use('window',function($,win){
+                    
+                    $('.btn-alert').tap(function(){
+                        /*
+                        win.alert({
+                            title:'提示',
+                            content:'这是一个确认框',
+                            buttons:['确认','取消','ok'],
+                            callback:function(err,res){
+                                if(err){
+                                    console.log(err);
+                                    return;
+                                }
+                                console.log(res);
+                            }
+                        });
+                        */
+                        win.popAlert({
+                            title:'提示',
+                            content:'哈哈这测试'
+                        });
+                        
+                    });
+                    
+                    $('.btn-open-toast').tap(function(){
+                        if(!(toastCount%2)){
+                            win.openToast({
+                                type:0,
+                                duration:3000,
+                                msg:'这是一个toast'
+                            });
+                            $(this).val('关闭一个toast');
+                        }else{
+                             win.closeToast();
+                             $(this).val('打开一个toast');
+                        }
+                        toastCount++;
+                    });
+                    
+                    $('.btn-open-window').tap(function(){
+                        //显示日志
+                        win.open({
+                            name:"new-window",
+                            dataType:0,
+                            data:'./new_window.html',
+                            aniId:$('#anim-type').val(),
+                            width:'80%',
+                            height:'80%',
+                            type:$("#window-type").val()
+                        });
+                    });
+                    
+                    $('.btn-evaluate-script').tap(function(){
+                        //默认窗口执行脚本
+                        win.evaluateScript({
+                            name:'new-window',
+                            type:0,
+                            scriptContent:$('.script-content').val()
+                        });
+                    });
+                    
+                    //设置设置上下回弹效果
+                    win.setBounce({
+                        bounceType:1,
+                        color:"#A0E",
+                        downEndCall:function(){
+                            alert('下边界');
+                            win.resetBounceView(1);
+                        },
+                        upEndCall:function(){
+                            alert('上边界');
+                            win.resetBounceView(0);
+                        }
+                    });
+                    
+                    $('.btn-win-move').tap(function(){
+                        alert('移动 浮动框');
+                        win.moveAnim({
+                            top:-300,
+                            left:-300,
+                            duration:1000,
+                            callback:function(){
+                                alert('move over！');
+                            }
+                        });
+                        
+                    });
+                    
+                    $('.btn-open-popover').tap(function(){
+                        win.openPopover({
+                            name:'slider-nav',
+                            dataType:0,
+                            data:'123',
+                            url:'./new_popover.html',
+                            width:200,
+                            height:800,
+                            top:-30,
+                            left:-30,
+                            fontSize:12,
+                            type:$('#popover-type').val()
+                        });
+                    });
+                    
+                    $(document).on('swipeRight',function(){
+                        win.openPopover({
+                            name:'slider-nav',
+                            dataType:0,
+                            data:'123',
+                            url:'./new_popover.html',
+                            width:200,
+                            height:800,
+                            top:-10,
+                            left:-30,
+                            fontSize:12,
+                            type:$('#popover-type').val()
+                        });
+                    });
+                    $(document).on('swipeLeft',function(){
+                         win.closePopover('slider-nav'); 
+                    });
+                    
+                    $('.btn-close-popover').tap(function(){
+                        alert('close');
+                        win.closePopover('slider-nav'); 
+                    });
+                });
+            });
+            
+            
+        </script>
+    </body>
+</html>

@@ -1,0 +1,82 @@
+<!doctype html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+        <meta charset="utf-8">
+        <title>新浮动窗口</title>
+        <link rel="stylesheet" href="../css/bootstrap/css/bootstrap.min.css">
+        <link rel="stylesheet" href="../css/main.css">
+        <style type="text/css">
+            html,body{
+                background:yellow;
+            }
+        </style>
+    </head>
+    <body>
+        <header class="container">
+            <div class="row">
+                <div class="col-xs-12 text-center">
+                    <h3>新浮动窗口</h3>
+                </div>
+            </div>
+        </header>
+        <div class="out-box container">
+            <div class="col-sm-2 nav-container">
+                <div class="nav-slide bs-docs-sidebar">
+                    <ul class="nav">
+                        
+                    </ul>
+                </div>
+            </div>
+            <div class="col-sm-10 container">
+                <div class="form-horizontal">
+                    <div class="form-group">
+                        <label for="rc4-key" class="col-sm-2 control-label">动画时长：:</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" value="1000" id="anim-duration" placeholder="动画时长">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="rc4-key" class="col-sm-2 control-label">
+                            详细信息:
+                        </label>
+                        <div class="col-sm-8">
+                            <ul class="list-unstyled">
+                            </ul>
+                        </div>
+                    </div>
+                 </div>
+                 <div class="row">
+                     <a id="explain"></a>
+                     <p class="col-sm-2 text-right">模块说明：</p>
+                     <div class="col-sm-8">
+                         <p>
+                             通过窗口模块可以使用内置的各种窗口
+                         </p>
+                     </div>
+                 </div>
+            </div>
+        </div>
+        <script type="text/javascript" src="../../dist/appcan.js"></script>
+        <script type="text/javascript" src="../js/main.js"></script>
+        <script type="text/javascript">
+            appcan.ready(function(){
+                var toastCount = 0;
+                
+                appcan.use('window',function($,win){
+                    win.moveAnim({
+                        top:0,
+                        left:0,
+                        duration:1000,
+                        callback:function(){
+                            alert('move over！');
+                        }
+                    });
+                    
+                    
+                });
+                
+            });
+        </script>
+    </body>
+</html>

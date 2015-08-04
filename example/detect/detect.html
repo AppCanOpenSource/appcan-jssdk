@@ -1,0 +1,145 @@
+<!doctype html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+        <meta charset="utf-8">
+        <title>测试 当前运行环境能力的监测</title>
+        <link rel="stylesheet" href="../css/bootstrap/css/bootstrap.min.css">
+        <link rel="stylesheet" href="../css/main.css">
+    </head>
+    <body>
+        <header class="container">
+            <div class="row">
+                <div class="col-xs-12 text-center">
+                    <h3>监测当前运行环境的能力和相关信息</h3>
+                </div>
+            </div>
+        </header>
+        <div class="out-box container">
+            <div class="col-sm-2 nav-container">
+                <div class="nav-slide bs-docs-sidebar">
+                    <ul class="nav">
+                        <li><a href="#">监测结果</a></li>
+                        <li><a href="#explain">模块说明</a></li>
+                        <li><a href="#code1">代码实现(推荐)</a></li>
+                        <li><a href="#code2">代码实现二</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-sm-10 container">
+                <div class="form-horizontal">
+                    <div class="form-group">
+                        <label for="rc4-key" class="col-sm-2 control-label">
+                            ua信息:
+                        </label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control ua-info" placeholder="ua">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="rc4-key" class="col-sm-2 control-label">
+                            详细信息:
+                        </label>
+                        <div class="col-sm-8">
+                            <ul class="list-unstyled">
+                                <li>是否支持touch：<code class="is-support-touch-res"></code></li>
+                                <li>是否支持css 3d：<code class="is-support-css3d-res"></code></li>
+                                <li>操作系统：<code class="os-res"></code></li>
+                                <li>操作系统版本：<code class="os-version-res"></code></li>
+                                <li>浏览器:<code class="runtime-res"></code></li>
+                                <li>浏览器版本:<code class="runtime-version-res"></code></li>
+                            </ul>
+                        </div>
+                    </div>
+                 </div>
+                 <div class="row">
+                     <a id="explain"></a>
+                     <p class="col-sm-2 text-right">模块说明：</p>
+                     <div class="col-sm-8">
+                         <p>
+                             通过这个模块可实现运行环境能力的监测
+                         </p>
+                     </div>
+                 </div>
+
+                 <div class="row">
+                     <a id="code1"></a>
+                     <p class="col-sm-2 text-right">代码实现(推荐)：</p>
+                     <div class="col-sm-8">
+                         <pre>
+ //使用appcan use 方法，回调有两个变量，一个是最常用的dom操作 推荐做法
+ appcan.use('detect',function($,detect){
+     $('.ua-info').val(detect.ua);//显示ua信息
+     $('.runtime-res').html(detect.browser.name);//显示浏览器名称
+     //浏览器版本号
+     $('.runtime-version-res').html(detect.browser.version);
+     $('.os-res').html(detect.os.name);//显示操作系统
+     $('.os-version-res').html(detect.os.version);//显示操作系统版本号
+     //是否支持touch事件
+     $('.is-support-touch-res').html(detect.event.supportTouch);
+     //是否支持css 3d
+     $('.is-support-css3d-res').html(detect.css.support3d);
+
+ });
+                         </pre>
+                     </div>
+                 </div>
+
+                 <div class="row">
+                     <a id="code2"></a>
+                     <p class="col-sm-2 text-right">代码实现二：</p>
+                     <div class="col-sm-8">
+                         <pre>
+ ///与zepto结合的使用方式，不推荐
+ $(document).ready(function(){
+     var detect = appcan.detect;
+     $('.ua-info').val(detect.ua);//显示ua信息
+     $('.runtime-res').html(detect.browser.name);//显示浏览器名称
+     //浏览器版本号
+     $('.runtime-version-res').html(detect.browser.version);
+     $('.os-res').html(detect.os.name);//显示操作系统
+     $('.os-version-res').html(detect.os.version);//显示操作系统版本号
+     //是否支持touch事件
+     $('.is-support-touch-res').html(detect.event.supportTouch);
+     //是否支持css 3d
+     $('.is-support-css3d-res').html(detect.css.support3d);
+ });
+                         </pre>
+                     </div>
+                 </div>
+            </div>
+        </div>
+        <script type="text/javascript" src="../../dist/appcan.js"></script>
+        <script type="text/javascript" src="../js/main.js"></script>
+        <script type="text/javascript">
+            //使用appcan use 方法，回调有两个变量，一个是最常用的dom操作 推荐做法
+            appcan.use('detect',function($,detect){
+                $('.ua-info').val(detect.ua);//显示ua信息
+                $('.runtime-res').html(detect.browser.name);//显示浏览器名称
+                //浏览器版本号
+                $('.runtime-version-res').html(detect.browser.version);
+                $('.os-res').html(detect.os.name);//显示操作系统
+                $('.os-version-res').html(detect.os.version);//显示操作系统版本号
+                //是否支持touch事件
+                $('.is-support-touch-res').html(detect.event.supportTouch);
+                //是否支持css 3d
+                $('.is-support-css3d-res').html(detect.css.support3d);
+            });
+
+            //与zepto结合的使用方式，不推荐
+            /*$(document).ready(function(){
+                var detect = appcan.detect;
+                $('.ua-info').val(detect.ua);//显示ua信息
+                $('.runtime-res').html(detect.browser.name);//显示浏览器名称
+                //浏览器版本号
+                $('.runtime-version-res').html(detect.browser.version);
+                $('.os-res').html(detect.os.name);//显示操作系统
+                $('.os-version-res').html(detect.os.version);//显示操作系统版本号
+                //是否支持touch事件
+                $('.is-support-touch-res').html(detect.event.supportTouch);
+                //是否支持css 3d
+                $('.is-support-css3d-res').html(detect.css.support3d);
+            });*/
+        </script>
+    </body>
+</html>

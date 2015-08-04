@@ -1,0 +1,63 @@
+html,body{
+    height:100%;
+}
+.nav-container{
+}
+.nav-slider{
+
+}
+@media (min-width: 768px) {
+    .nav-slide{
+        position:fixed;
+        top:20px;
+        bottom:20px;
+    }
+}
+.real-content{
+}
+.out-box{
+}
+.out-box > .container{
+    box-shadow: -30px -1px 41px -43px gray;
+    -webkit-box-shadow: -30px -1px 41px -43px gray;
+    -moz-box-shadow: -30px -1px 41px -43px gray;
+    -ms-box-shadow: -30px -1px 41px -43px gray;
+}
+
+.bs-docs-sidebar .nav .nav>li>a:hover, .bs-docs-sidebar .nav .nav>li>a:focus {
+    padding-left: 29px;
+}
+.bs-docs-sidebar .nav .nav>li>a {
+    padding-top: 1px;
+    padding-bottom: 1px;
+    padding-left: 30px;
+    font-size: 12px;
+    font-weight: 400;
+}
+.bs-docs-sidebar .nav>li>a:hover, .bs-docs-sidebar .nav>li>a:focus {
+    padding-left: 19px;
+    color: #563d7c;
+    text-decoration: none;
+    background-color: transparent;
+    border-left: 1px solid #563d7c;
+}
+.bs-docs-sidebar .nav>li>a {
+    display: block;
+    padding: 4px 20px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #999;
+}
+.bs-docs-sidebar .nav>.active>a, .bs-docs-sidebar .nav>.active:hover>a, .bs-docs-sidebar .nav>.active:focus>a {
+    padding-left: 18px;
+    font-weight: 700;
+    color: #563d7c;
+    background-color: transparent;
+    border-left: 2px solid #563d7c;
+}
+
+pre{
+    overflow: auto;
+    word-wrap: normal;
+    white-space: pre;
+}

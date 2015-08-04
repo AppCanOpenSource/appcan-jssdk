@@ -1,0 +1,163 @@
+<!doctype html>
+<html class="um landscape min-width-240px min-width-320px min-width-480px min-width-768px min-width-1024px">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+        <meta charset="utf-8">
+        <title>测试 当前运行环境能力的监测</title>
+        <link rel="stylesheet" href="../css/bootstrap/css/bootstrap.min.css">
+        <link rel="stylesheet" href="../css/main.css">
+    </head>
+    <body>
+        <header class="container">
+            <div class="row">
+                <div class="col-xs-12 text-center">
+                    <h3>监测当前运行环境的能力和相关信息</h3>
+                </div>
+            </div>
+        </header>
+        <div class="out-box container">
+            <div class="col-sm-2 nav-container">
+                <div class="nav-slide bs-docs-sidebar">
+                    <ul class="nav">
+                        <li><a href="#">监测结果</a></li>
+                        <li><a href="#explain">模块说明</a></li>
+                        <li><a href="#code1">代码实现(推荐)</a></li>
+                        <li><a href="#code2">代码实现二</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-sm-10 container">
+                <div class="form-horizontal">
+                    <div class="form-group">
+                        <label for="rc4-key" class="col-sm-2 control-label">
+                            震动:
+                        </label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control vibrate" value="1000" placeholder="1000">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="rc4-key" class="col-sm-2 control-label">
+                            详细信息:
+                        </label>
+                        <div class="col-sm-8">
+                            <ul class="list-unstyled">
+                                <li>cpu：<code class="cpu"></code></li>
+                                <li>设备制造商：<code class="manufacturer"></code></li>
+                                <li>操作系统：<code class="os"></code></li>
+                                <li>否支持键盘的字符串：<code class="keyboard"></code></li>
+                                <li>是否支持蓝牙:<code class="blueTooth"></code></li>
+                                <li>否支持WIFI:<code class="wifi"></code></li>
+                                <li>是否支持摄像头:<code class="camera"></code></li>
+                                <li>是否支持GPS:<code class="gps"></code></li>
+                                <li>当前移动网络数据连接是否可用:<code class="gprs"></code></li>
+                                <li>是否支持触屏:<code class="touch"></code></li>
+                                <li>IMEI:<code class="imei"></code></li>
+                                <li>设备的唯一令牌:<code class="deviceToken"></code></li>
+                                <li>设备类型:<code class="deviceType"></code></li>
+                                <li>当前联网的方式:<code class="connectStatus"></code></li>
+                                <li>设备剩余的磁盘空间:<code class="restDiskSize"></code></li>
+                                <li>移动网络运营商:<code class="mobileOperatorName"></code></li>
+                                <li>WIFI mac地址:<code class="macAddress"></code></li>
+                                <li>设备的型号:<code class="model"></code></li>
+                            </ul>
+                        </div>
+                    </div>
+                 </div>
+                 <div class="row">
+                     <a id="explain"></a>
+                     <p class="col-sm-2 text-right">模块说明：</p>
+                     <div class="col-sm-8">
+                         <p>
+                             通过这个模块可实现运行环境能力的监测
+                         </p>
+                     </div>
+                 </div>
+                 <div class="row">
+                     <a id="code1"></a>
+                     <p class="col-sm-2 text-right">代码实现(推荐)：</p>
+                     <div class="col-sm-8">
+                         <pre>
+ //使用appcan use 方法，回调有两个变量，一个是最常用的dom操作 推荐做法
+            appcan.ready(function(){
+                //使用设备
+                appcan.use('device',function($,device){
+                    device.getDeviceInfo(function(di,si,i,v){
+                        $.each(si,function(k,v){
+                            $('.'+k).html(v);
+                        });
+                    });
+                    $(".vibrate").blur(function(){
+                        alert($(this).val());
+                        device.vibrate($(this).val());
+                    });
+                });
+            });
+                         </pre>
+                     </div>
+                 </div>
+
+                 <div class="row">
+                     <a id="code2"></a>
+                     <p class="col-sm-2 text-right">代码实现二：</p>
+                     <div class="col-sm-8">
+                         <pre>
+ ///与zepto结合的使用方式，不推荐
+ window.uexOnload = function(){
+    var device = appcan.device;
+    device.getDeviceInfo(function(di,si,i,v){
+            $.each(si,function(k,v){
+                $('.'+k).html(v);
+            });
+        });
+        $(".vibrate").blur(function(){
+            alert($(this).val());
+            device.vibrate($(this).val());
+        });
+    });
+ };
+             
+                         </pre>
+                     </div>
+                 </div>
+            </div>
+        </div>
+        <script type="text/javascript" src="../../dist/appcan.js"></script>
+        <script type="text/javascript" src="../js/main.js"></script>
+        <script type="text/javascript">
+            //使用appcan use 方法，回调有两个变量，一个是最常用的dom操作 推荐做法
+			appcan.ready(function(){
+                //使用设备
+                appcan.use('device',function($,device){
+                    device.getDeviceInfo(function(di,si,i,v){
+                        $.each(si,function(k,v){
+                            $('.'+k).html(v);
+                        });
+                    });
+                    $(".vibrate").blur(function(){
+                        device.vibrate($(this).val());
+                    });
+                });
+            });
+            
+            /*
+             window.uexOnload = function(){
+                var device = appcan.device;
+                device.getDeviceInfo(function(di,si,i,v){
+                        $.each(si,function(k,v){
+                            $('.'+k).html(v);
+                        });
+                    });
+                    $(".vibrate").blur(function(){
+                        alert($(this).val());
+                        device.vibrate($(this).val());
+                    });
+                });
+             };
+             
+             */ 
+           
+			
+        </script>
+    </body>
+</html>

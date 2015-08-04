@@ -1,0 +1,227 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>模块化测试</title>
+        <style type="text/css">
+
+            #magazine{
+            	width:152px;
+            	height:252px;
+            }
+            #magazine .turn-page{
+            	background-color:#ccc;
+            	background-size:100% 100%;
+            }
+            .template{
+                width:300px;
+                height:200px;
+            }
+        </style>
+        <script src="http://libs.baidu.com/jquery/1.9.0/jquery.js"></script>
+        <script type="text/javascript" src="turn.js"></script>
+        <script type="text/template">
+            <% for(var i=0; i< 100;i++){ %>
+                <span><%= i %></span>
+            <%} %>
+        </script>
+        <script>
+            eval(
+            'var str = "";'+
+            'for(var i=0; i< 100;i++){'+
+            'str+="<span>";'+'str+=i;'+'str+="</span>";'+
+            '}'+
+            'console.log(str);');
+
+        </script>
+    </head>
+    <body>
+        <h2>模块化测试</h2>
+        <p><input type="button" value="点击测试事件模块"></p>
+        <h3>jquery 插件 请按左右箭头翻页</h3>
+        <div>
+            <div id="magazine">
+            	<div style="background-image:url(1.jpg);"></div>
+            	<div style="background-image:url(1.jpg);"></div>
+            	<div style="background-image:url(1.jpg);"></div>
+            	<div style="background-image:url(1.jpg);"></div>
+            	<div style="background-image:url(1.jpg);"></div>
+            	<div style="background-image:url(1.jpg);"></div>
+            </div>
+        </div>
+        <h3>测试模板渲染</h3>
+        <div style="vertical-align:middle;">
+            模板：<textarea class="template">
+                <ul>
+                    <%for (var i=0; i< 100; i++){%>
+                        <li>
+                            <span style="color:red;"><%=name%></span>
+                            <span><%=i%></span>
+                        </li>
+                    <%}%>
+                </ul>
+            </textarea><br>
+
+        数据源：<textarea class="data-source">{"name":"dustin"}</textarea><br>
+            <input class="render-temp" type="button" value="渲染">
+        </div>
+        <h3>预览</h3>
+        <div class="preview">
+        </div>
+        <div id="show-res"></div>
+        <script type="text/javascript" src="../src/lib/zepto/zepto.js"></script>
+        <script type="text/javascript" src="../src/lib/underscore/underscore.js"></script>
+        <script type="text/javascript" src="../src/lib/backbone/backbone.js"></script>
+        <script type="text/javascript" src="../src/appcan.js"></script>
+        <script type="text/javascript" src="../src/appcan_base.js"></script>
+        <script type="text/javascript" src="../src/appcan_event.js"></script>
+        <script type="text/javascript" src="../src/appcan_model.js"></script>
+        <script type="text/javascript" src="../src/appcan_view.js"></script>
+        <script type="text/javascript">
+
+            //定义插件
+            appcan.define('toggleBg',function(ac,exports,module){
+                var bd = ac('body');
+                var tgb = function(){
+                    if(bd.css('background') == 'yellow'){
+                        ac('body').css({
+                            background:''
+                        });
+                    }else{
+                        ac('body').css({
+                            background:'yellow'
+                        });
+                    }
+                };
+
+                module.exports = tgb;
+
+                return tdg;
+            });
+
+
+
+            appcan.use('toggleBg',function($,tg){
+
+                $(document).click(tg);
+
+            });
+
+
+            //使用第三方插件，不在模块管理的范围不提供管理支持可以直接调用
+            appcan.use('toggleBg',function(ac,tg){
+
+            $(window).ready(function() {
+            		$('#magazine').turn({
+            							display: 'single',
+            							acceleration: true,
+            							gradients: !$.isTouch,
+            							elevation:50,
+            							when: {
+            								turned: function(e, page) {
+            									/*console.log('Current view: ', $(this).turn('view'));*/
+            								}
+            							}
+            						});
+            	});
+
+
+            	$(window).bind('keydown', function(e){
+
+            		if (e.keyCode==37)
+            			$('#magazine').turn('previous');
+            		else if (e.keyCode==39)
+            			$('#magazine').turn('next');
+
+            	});
+
+            });
+
+
+            /*
+            //测试定义类
+            appcan.use('EventEmitter',function($,EventEmitter){
+                var eventEmitter = new EventEmitter();
+                eventEmitter.on('buttonclick',function(){
+                    alert('测试事件按钮被点击了');
+
+                });
+
+                var showRes = $('#show-res');
+                showRes.html('demo测试成功！');
+
+                $('input[type=button]').on('click',function(){
+                    eventEmitter.emmit('buttonclick');
+                });
+            });
+            */
+
+
+            //测试backbone history
+            var ht = Backbone.history;
+            ht.start();
+            ht.route(/a\/b/g,function(rot){
+                console.log('a');
+                ht.navigate('/b/c/d',true);
+            });
+
+            ht.route(/b\/c/ig,function(res){
+                console.log('i am here!');
+            });
+
+            //测试model
+            appcan.use('Model',function($,Model){
+                var User = Model.extend({
+                    url:function(){
+                        //var url = 'https://cn.avoscloud.com:443/1/classes/'+
+                        var url = 'testte/';
+                        this.get('name');
+                        return url;
+                    },
+                    validate:function(val){
+                        return false;
+                    }
+                });
+                var md = new User();
+                md.on('invalid',function(){
+                    alert('出错了！');
+
+                });
+                md.set('name','user');
+                md.set('username','dustin',{validate:true});
+                md.set('address','中关村');
+                md.set('email','shaobin.du@3g2win.com');
+                md.save(null,{
+                    headers:{
+                        'x-dustin':'dustin'
+                    },
+                    success:function(){
+                        alert('提交成功！');
+                    },
+                    beforeSend:function(xhr){
+                        xhr.setRequestHeader('x-avoscloud-application-id',
+                        '0fnfo33vya66ei7tkd6auupse1c9rqelnrc1v2542to3vow7');
+                        xhr.setRequestHeader('x-avoscloud-application-key',
+                         'bcinz3talcl8n40wb3j1jvw1yu7u934ssw6ymsezctaodw4y');
+                        //"x-avoscloud-application-id":"0fnfo33vya66ei7tkd6auupse1c9rqelnrc1v2542to3vow7",
+                        //"x-avoscloud-application-key":"bcinz3talcl8n40wb3j1jvw1yu7u934ssw6ymsezctaodw4y"
+                    }
+                });
+            });
+
+            //测试view
+            appcan.use('view',function($,render){
+
+                $('.render-temp').on('click',function(){
+                    var tmpl = $('.template').val();
+                    var data = JSON.parse($('.data-source').val());
+                    render('.preview',tmpl,data);
+                });
+
+            });
+
+
+
+        </script>
+    </body>
+</html>

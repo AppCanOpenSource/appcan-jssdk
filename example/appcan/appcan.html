@@ -1,0 +1,325 @@
+<!doctype html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+        <meta charset="utf-8">
+        <title>appcan 模块的添加、扩展、使用 demo</title>
+        <link rel="stylesheet" href="../css/bootstrap/css/bootstrap.min.css">
+        <link rel="stylesheet" href="../css/main.css">
+        <style type="text/css">
+            .task-list li{
+                border-bottom:1px solid #CCC;
+                line-height:26px;
+            }
+            .split-block{
+                border:1px solid #ddd;
+                border-radius:4px;
+                padding:5px;
+                margin:5px;
+            }
+        </style>
+    </head>
+    <body>
+        <header class="container">
+            <div class="row">
+                <div class="col-xs-12 text-center">
+                    <h3>appcan 模块的添加、扩展、使用 demo</h3>
+                </div>
+            </div>
+        </header>
+        <div class="out-box container">
+            <!--<div class="col-sm-2 nav-container">
+                <div class="nav-slide bs-docs-sidebar">
+                    <ul class="nav">
+                        <li><a href="#">任务管理系统</a></li>
+                        <li><a href="#explain">模块定义</a></li>
+                        <li>
+                            <a href="#code1">代码实现(推荐)</a>
+                        </li>
+                        <li>
+                            <a href="#code1-1">定义模块</a>
+                        </li>
+                        <li>
+                            <a href="#code1-2">引用模块</a>
+                        </li>
+                        <li>
+                            <a href="#code1-3">使用模块</a>
+                        </li>
+                        <li>
+                            <a href="#code1-4">扩展模块</a>
+                        </li>
+                        <li><a href="#code2">代码实现二</a></li>
+                    </ul>
+                </div>
+            </div>-->
+            <div class="col-sm-10 container">
+                <div class="form-horizontal">
+                    <div class="form-group">
+                        <label for="rc4-key" class="col-sm-2 control-label">
+                            任务名:
+                        </label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control task-name" plaseholder="输入任务名字">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="rc4-key" class="col-sm-2 control-label">
+                            任务内容:
+                        </label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control task-content" plaseholder="输入任务名字">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-8 col-sm-offset-2">
+                            <input type="button" class="btn btn-default add-task" value="添加">
+                        </div>
+                    </div>
+                 </div>
+                 <script id="task-temp" type="text/appcan-template">
+                    <%for(var k in tasks){%>
+                        <li>
+                            <span style="color:rgba(234,22,234,0.6);display:inline-block;padding-right:30px;">
+                                <%=k%>
+                            </span>
+                            <span>
+                                <%=tasks[k]%>
+                            </span>
+                            <button data-task-name="<%=k%>" type="button" class="close"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                        </li>
+                    <%}%>
+                 </script>
+                 <div class="row">
+                     <div class="col-sm-8 col-sm-offset-2">
+                         <ul class="task-list list-unstyled">
+                             <li>
+                                 <span>
+                                     显示任务
+                                 </span>
+                                 <button type="button" class="close"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                             </li>
+                         </ul>
+                     </div>
+                 </div>
+
+                 <div class="row">
+                     <a id="explain"></a>
+                     <p class="col-sm-2">模块说明：</p>
+                     <div class="col-sm-8">
+                         <p>
+                             通过该模块实现前端代码的模块化，主要有四个方法构成:<br>
+                             定义模块：<code>appcan.define</code><br>
+                             引用模块：<code>appcan.require</code><br>
+                             扩展模块：<code>appcan.extend</code><br>
+                             使用模块：<code>appcan.use</code><br>
+                         </p>
+                     </div>
+                 </div>
+                 <p></p>
+
+                 <div class="row">
+                     <a id="code1"></a>
+                     <p class="col-sm-2">代码实现(推荐)：</p>
+                     <div class="col-sm-8">
+                         <div class="split-block">
+                             <a id="code1-1"></a>
+                             <p>定义任务模块：</p>
+                             <pre>
+     appcan.define('task',function($,exports,module){
+         var view = appcan.require('view');
+         var task = {
+             add:function(name,content){
+                 if(!this.tasks){
+                     this.tasks = {};
+                     this.tasks[name] = content;
+                 }else{
+                     this.tasks[name] = content;
+                 }
+             },
+             remove:function(name){
+                 if(name){
+                     delete this.tasks[name];
+                 }
+             },
+             show:function(ct){
+                 var tmp = $('#task-temp');
+                 var template = tmp.html();
+                 view.render(ct || '.task-list',template,{
+                     tasks:this.tasks
+                 });
+             }
+         };
+         module.exports = task;
+     });
+                             </pre>
+
+                             <a id="code1-2"></a>
+                             <p>引用其他已存在的模块</p>
+                             <pre>
+ appcan.define('task',function($,exports,module){
+     var view = appcan.require('view');//引用模板模块
+     ......
+     ......
+     ......
+ })
+                             </pre>
+
+                             <a id="code1-3"></a>
+                             <p>使用定义的模块：</p>
+                             <pre>
+ //使用一个模块
+ appcan.use('task',function($,task){
+     $('.add-task').click(function(){
+         var tn = $('.task-name').val();
+         var tc = $('.task-content').val();
+         task.add(tn,tc);
+         task.show();
+         $('.task-name').val('');
+         $('.task-content').val('');
+     });
+     $('.task-name,.task-content').keypress(function(evt){
+         if(evt.keyCode === 13){
+             var tn = $('.task-name').val();
+             var tc = $('.task-content').val();
+             task.add(tn,tc);
+             task.show();
+             $('.task-name').val('');
+             $('.task-content').val('');
+         }
+     });
+
+     $('.task-list').on('click',"button",function(evt){
+         var self = $(this);
+         var taskName = self.data('task-name');
+         if(taskName){
+             task.remove(taskName);
+             task.show();
+         }
+     })
+ });
+                             </pre>
+
+
+                             <a id="code1-4"></a>
+                             <p>对定义的模块进行扩展：</p>
+                             <pre>
+ //对任务模块进行扩展,在每个添加的任务后面加上添加任务的时间
+ appcan.extend('task',function(task){
+     var preTaskAdd = task.add;
+
+     var addWithTime = function(name,task){
+         var now = new Date();
+         var year = now.getFullYear();
+         var month = now.getMonth()+1;
+         var day = now.getDate();
+         task = task+'<span style="display:inline-block; font-size:12px;vertical-align:bottom; line-height:13px; padding:0 15px;">'+
+             year+'-'+month+'-'+day
+         +'</span>'
+         preTaskAdd.call(this,name,task);
+     };
+
+     task.add = addWithTime;
+ });
+                             </pre>
+                         </div>
+                     </div>
+                 </div>
+
+
+                 <div class="row">
+                     <a id="code2"></a>
+                     <p class="col-sm-2">代码实现二：</p>
+                     <div class="col-sm-8">
+                         <pre>
+ //用zepto的方法 扩展的话，跟上面一样，这里没有不同的方法
+
+                         </pre>
+                     </div>
+                 </div>
+            </div>
+        </div>
+        <script type="text/javascript" src="../../dist/appcan.js"></script>
+        <script type="text/javascript" src="../js/main.js"></script>
+        <script type="text/javascript">
+            //定义一个模块,首先是调用define方法传入一个任务名，一个生成任务的函数，
+            //最后用模块导出你生成的任务模块
+            appcan.define('task',function($,exports,module){
+                var view = appcan.require('view');
+                var task = {
+                    add:function(name,content){
+                        if(!this.tasks){
+                            this.tasks = {};
+                            this.tasks[name] = content;
+                        }else{
+                            this.tasks[name] = content;
+                        }
+                    },
+                    remove:function(name){
+                        if(name){
+                            delete this.tasks[name];
+                        }
+                    },
+                    show:function(ct){
+                        var tmp = $('#task-temp');
+                        var template = tmp.html();
+                        view.render(ct || '.task-list',template,{
+                            tasks:this.tasks
+                        });
+                    }
+                };
+                module.exports = task;
+            });
+
+            //对任务模块进行扩展,在每个添加的任务后面加上添加任务的时间
+            appcan.extend('task',function(task){
+                var preTaskAdd = task.add;
+
+                var addWithTime = function(name,task){
+                    var now = new Date();
+                    var year = now.getFullYear();
+                    var month = now.getMonth()+1;
+                    var day = now.getDate();
+                    task = task+'<span style="display:inline-block; font-size:12px;vertical-align:bottom; line-height:13px; padding:0 15px;">'+
+                        year+'-'+month+'-'+day
+                    +'</span>'
+                    preTaskAdd.call(this,name,task);
+                };
+
+                task.add = addWithTime;
+            });
+
+            //使用一个模块
+            appcan.use('task',function($,task){
+                $('.add-task').click(function(){
+                    var tn = $('.task-name').val();
+                    var tc = $('.task-content').val();
+                    task.add(tn,tc);
+                    task.show();
+                    $('.task-name').val('');
+                    $('.task-content').val('');
+                });
+                $('.task-name,.task-content').keypress(function(evt){
+                    if(evt.keyCode === 13){
+                        var tn = $('.task-name').val();
+                        var tc = $('.task-content').val();
+                        task.add(tn,tc);
+                        task.show();
+                        $('.task-name').val('');
+                        $('.task-content').val('');
+                    }
+                });
+
+                $('.task-list').on('click',"button",function(evt){
+                    var self = $(this);
+                    var taskName = self.data('task-name');
+                    if(taskName){
+                        task.remove(taskName);
+                        task.show();
+                    }
+                });
+                
+            });
+
+        </script>
+    </body>
+</html>

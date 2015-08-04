@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+        <meta charset="utf-8">
+        <title>上传文件测试</title>
+        <link rel="stylesheet" href="../css/bootstrap/css/bootstrap.min.css">
+        <link rel="stylesheet" href="../css/main.css">
+        <style type="text/css">
+            .task-list li{
+                border-bottom:1px solid #CCC;
+                line-height:26px;
+            }
+            .split-block{
+                border:1px solid #ddd;
+                border-radius:4px;
+                padding:5px;
+                margin:5px;
+            }
+        </style>
+    </head>
+    <body>
+        <div>
+            调用次数：<span class="call-times"></span>
+        </div>
+        <div>
+            进度：<span class="progress-shower"></span>
+        </div>
+        <form id="upload-file" action="/save_file.php" method="post" enctype="multipart/form-data">
+            <div class="">
+                <input type="button" name="camera" value="拍照">
+            </div>
+            <input type="text" name="name" value="dustin">
+            <input type="hidden" name="file">
+            <input type="submit" value="提交文件">
+        </form>
+        <div class="res"></div>
+        <script type="text/javascript" src="../../dist/appcan.js"></script>
+        <script type="text/javascript" src="../js/main.js"></script>
+        <script>
+            appcan.ready(function(){
+                $('[name=camera]').tap(function(){
+                    uexWidgetOne.onMemoryWarning = function(isWarning, level){
+                        alert("warning");
+                    };
+                    //照相机拍照成功或出错的回调函数
+                    uexCamera.cbOpen = function(opCode, dataType, data){
+                        if(dataType == 0){
+                            $('[name=file]').val(data);
+                        }
+                        alert(data);
+                    };
+                    uexWidgetOne.cbError = function(opCode, errorCode, errorInfo){
+                        alert("errorCode:" + errorCode + "\nerrorInfo:" + errorInfo);
+                    };
+                    uexCamera.open();
+                });
+                var times = 0;
+                $('#upload-file').on('submit',function(){
+                    var request = appcan.require('request');
+                    
+                    request.ajax({
+                        url:'http://192.168.1.103:8088/save_file.php',
+                        type:'POST',
+                        data:{
+                            'a':'a',
+                            'file':{
+                                path:$('[name=file]').val()
+                            }
+                        },
+                        contentType:false,
+                        progress:function(progress){
+                            $('.progress-shower').html("a"+progress);
+                        },
+                        success:function(data){
+                            times++;
+                            $('.call-times').html('a:'+times);
+                            $('.res').append(data);
+                        }
+                    });
+                    
+                    request.ajax({
+                        url:'http://192.168.1.103:8088/save_file.php',
+                        type:'POST',
+                        data:{
+                            'b':'b',
+                            'file':{
+                                path:$('[name=file]').val()
+                            }
+                        },
+                        contentType:false,
+                        progress:function(progress){
+                            $('.progress-shower').html("b:"+progress);
+                        },
+                        success:function(data){
+                            times++;
+                            $('.call-times').html('b:'+times);
+                            $('.res').append(data);
+                        }
+                    });
+                    
+                    
+                    request.ajax({
+                        url:'http://192.168.1.103:8088/json.php',
+                        type:'POST',
+                        data:{
+                            'a':'a'
+                        },
+                        success:function(data){
+                            times++;
+                            $('.call-times').html(times);
+                            $('.res').append(data);
+                        }
+                    });
+                    
+                    request.ajax({
+                        url:'http://192.168.1.103:8088/json.php',
+                        type:'POST',
+                        data:{
+                            'd':'d'
+                        },
+                        success:function(data){
+                            times++;
+                            $('.call-times').html(times);
+                            $('.res').append(data);
+                        }
+                    });
+                    
+                    request.ajax({
+                        url:'http://192.168.1.103:8088/json.php',
+                        type:'GET',
+                        data:{
+                            'b':'b'
+                        },
+                        success:function(data){
+                            times++;
+                            $('.call-times').html(times);
+                            $('.res').append(data);
+                        }
+                    });
+                    
+                    request.ajax({
+                        url:'http://192.168.1.103:8088/json.php',
+                        type:'GET',
+                        data:{
+                            'm':'m'
+                        },
+                        success:function(data){
+                            times++;
+                            $('.call-times').html(times);
+                            $('.res').append(data);
+                        }
+                    });
+                    
+                    request.ajax({
+                        url:'http://192.168.1.103:8088/json.php',
+                        type:'GET',
+                        data:{
+                            'n':'n'
+                        },
+                        success:function(data){
+                            times++;
+                            $('.call-times').html(times);
+                            $('.res').append(data);
+                        }
+                    });
+                    
+                    alert('submit');
+                    return false;
+                });
+                
+            });
+        </script>
+    </body>
+</html>

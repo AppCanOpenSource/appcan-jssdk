@@ -1,0 +1,425 @@
+<!doctype html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+        <meta charset="utf-8">
+        <title>文件api demo</title>
+        <link rel="stylesheet" href="../css/bootstrap/css/bootstrap.min.css">
+        <link rel="stylesheet" href="../css/main.css">
+        <style type="text/css">
+            .task-list li{
+                border-bottom:1px solid #CCC;
+                line-height:26px;
+            }
+            .split-block{
+                border:1px solid #ddd;
+                border-radius:4px;
+                padding:5px;
+                margin:5px;
+            }
+        </style>
+    </head>
+    <body>
+        <header class="container">
+            <div class="row">
+                <div class="col-xs-12 text-center">
+                    <h3>文件api demo</h3>
+                </div>
+            </div>
+        </header>
+        <div class="out-box container">
+            <div class="col-sm-2 nav-container">
+                <div class="nav-slide bs-docs-sidebar">
+                    <ul class="nav">
+                        <li><a href="#">文件api demo</a></li>
+                        <li><a href="#code1">代码实现(推荐)</a></li>
+                        <li><a href="#code2">代码实现二</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-sm-10 container">
+                <div class="form-horizontal">
+                    <div class="form-group">
+                        <label for="rc4-key" class="col-sm-2 control-label">文件路径：</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control file-path" value="wgt://" placeholder="path" >
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="rc4-key" class="col-sm-2 control-label">内容:</label>
+                        <div class="col-sm-8">
+                            <textarea class="form-control rc4-content file-content" rows="3"></textarea>
+                        </div>
+                     </div>
+                    <div class="form-group">
+                        <label for="rc4-key" class="col-sm-2 control-label">操作:</label>
+                        <div class="col-sm-8">
+                            <button class="btn btn-default create">创建</button>
+                            <button class="btn btn-default read">获取</button>
+                            <button class="btn btn-default delete">删除</button>
+                            <button class="btn btn-default write">写入</button>
+                            <button class="btn btn-default append">附加</button>
+                        </div>
+                     </div>
+                 </div>
+                 <div class="row">
+                     <a id="code1"></a>
+                     <p class="col-sm-2 text-right">代码实现(推荐)：</p>
+                     <div class="col-sm-8">
+                         <pre>
+    //使用appcan use 方法，回调有两个变量，一个是最常用的dom操作 推荐做法
+   appcan.ready(function(){
+       //添加依赖对象
+       appcan.use('file',function($,file){
+           alert('here');
+           $('.create').tap(function(){
+               alert($('.file-path').val());
+               file.create({
+                   filePath:$('.file-path').val(),
+                   callback:function(err){
+                       if(err){
+                           alert('出错了');
+                           return;
+                       }
+                       alert('创建成功!');
+                   }
+               });
+           });
+           
+           
+           
+           $('.delete').tap(function(){
+               alert($('.file-path').val());
+               file.remove({
+                   filePath:$('.file-path').val(),
+                   callback:function(err){
+                       if(err){
+                           alert('出错了');
+                           return;
+                       }
+                       alert('删除文件成功!');
+                   }
+               });
+           });
+           
+           $('.write').tap(function(){
+               alert($('.file-path').val());
+               file.write({
+                   filePath:$('.file-path').val(),
+                   content:$('.file-content').val(),
+                   callback:function(err){
+                       if(err){
+                           alert('出错了');
+                           return;
+                       }
+                       alert('写入文件成功！!');
+                   }
+               });
+           });
+           
+            $('.read').tap(function(){
+               alert($('.file-path').val());
+               file.read({
+                   filePath:$('.file-path').val(),
+                   callback:function(err,dt){
+                       if(err){
+                           alert('出错了');
+                           return;
+                       }
+                       alert(dt);
+                   }
+               });
+           });
+           
+           $('.append').tap(function(){
+               alert($('.file-path').val());
+               file.append({
+                   filePath:$('.file-path').val(),
+                   content:$('.file-content').val(),
+                   callback:function(err,dt){
+                       if(err){
+                           alert('出错了');
+                           return;
+                       }
+                       alert('附加成功！');
+                   }
+               });
+           });
+       });
+   });
+                         </pre>
+                     </div>
+                 </div>
+
+                 <div class="row">
+                     <a id="code2"></a>
+                     <p class="col-sm-2 text-right">代码实现二：</p>
+                     <div class="col-sm-8">
+                         <pre>
+ //与zepto结合的使用方式，不推荐
+ /* 
+//普通写法
+window.uexOnload = function(){
+   var file = appan.file;
+   alert('here');
+   $('.create').tap(function(){
+       alert($('.file-path').val());
+       file.create({
+           filePath:$('.file-path').val(),
+           callback:function(err){
+               if(err){
+                   alert('出错了');
+                   return;
+               }
+               alert('创建成功!');
+           }
+       });
+   });
+   
+   $('.delete').tap(function(){
+       alert($('.file-path').val());
+       file.remove({
+           filePath:$('.file-path').val(),
+           callback:function(err){
+               if(err){
+                   alert('出错了');
+                   return;
+               }
+               alert('删除文件成功!');
+           }
+       });
+   });
+   
+   $('.write').tap(function(){
+       alert($('.file-path').val());
+       file.write({
+           filePath:$('.file-path').val(),
+           content:$('.file-content').val(),
+           callback:function(err){
+               if(err){
+                   alert('出错了');
+                   return;
+               }
+               alert('写入文件成功！!');
+           }
+       });
+   });
+   
+    $('.read').tap(function(){
+       alert($('.file-path').val());
+       file.read({
+           filePath:$('.file-path').val(),
+           callback:function(err,dt){
+               if(err){
+                   alert('出错了');
+                   return;
+               }
+               alert(dt);
+           }
+       });
+   });
+   
+   $('.append').tap(function(){
+       alert($('.file-path').val());
+       file.append({
+           filePath:$('.file-path').val(),
+           content:$('.file-content').val(),
+           callback:function(err,dt){
+               if(err){
+                   alert('出错了');
+                   return;
+               }
+               alert('附加成功！');
+           }
+       });
+   });
+   
+};
+*/
+                         </pre>
+                     </div>
+                 </div>
+            </div>
+        </div>
+        <script id="task-temp" type="text/appcan-template">
+           <%for(var k in tasks){%>
+               <li>
+                   <span style="color:rgba(234,22,234,0.6);display:inline-block;padding-right:30px;">
+                       <%-k%>
+                   </span>
+                   <span>
+                       <% if(tasks[k].length > 40){ %>
+                           <%-tasks[k].substr(0,40)+'...'%>
+                       <%} else{%>
+                           <%-tasks[k]%>
+                       <%}%>
+                   </span>
+                   <button data-task-name="<%-k%>" type="button" class="close"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+               </li>
+           <%}%>
+        </script>
+        <script type="text/javascript" src="../../dist/appcan.js"></script>
+        <script type="text/javascript" src="../js/main.js"></script>
+        <script type="text/javascript">
+           //推荐写法
+           appcan.ready(function(){
+               //添加依赖对象
+               appcan.use('file',function($,file){
+                   alert('here');
+                   $('.create').tap(function(){
+                       alert($('.file-path').val());
+                       file.create({
+                           filePath:$('.file-path').val(),
+                           callback:function(err){
+                               if(err){
+                                   alert('出错了');
+                                   return;
+                               }
+                               alert('创建成功!');
+                           }
+                       });
+                   });
+                   
+                   $('.delete').tap(function(){
+                       alert($('.file-path').val());
+                       file.remove({
+                           filePath:$('.file-path').val(),
+                           callback:function(err){
+                               if(err){
+                                   alert('出错了');
+                                   return;
+                               }
+                               alert('删除文件成功!');
+                           }
+                       });
+                   });
+                   
+                   $('.write').tap(function(){
+                       alert($('.file-path').val());
+                       file.write({
+                           filePath:$('.file-path').val(),
+                           content:$('.file-content').val(),
+                           callback:function(err){
+                               if(err){
+                                   alert('出错了');
+                                   return;
+                               }
+                               alert('写入文件成功！!');
+                           }
+                       });
+                   });
+                   
+                    $('.read').tap(function(){
+                       alert($('.file-path').val());
+                       file.read({
+                           filePath:$('.file-path').val(),
+                           callback:function(err,dt){
+                               if(err){
+                                   alert('出错了');
+                                   return;
+                               }
+                               alert(dt);
+                           }
+                       });
+                   });
+                   
+                   $('.append').tap(function(){
+                       alert($('.file-path').val());
+                       file.append({
+                           filePath:$('.file-path').val(),
+                           content:$('.file-content').val(),
+                           callback:function(err,dt){
+                               if(err){
+                                   alert('出错了');
+                                   return;
+                               }
+                               alert('附加成功！');
+                           }
+                       });
+                   });
+               });
+           });
+           
+           /* 
+           //普通写法
+           window.uexOnload = function(){
+               var file = appan.file;
+               alert('here');
+               $('.create').tap(function(){
+                   alert($('.file-path').val());
+                   file.create({
+                       filePath:$('.file-path').val(),
+                       callback:function(err){
+                           if(err){
+                               alert('出错了');
+                               return;
+                           }
+                           alert('创建成功!');
+                       }
+                   });
+               });
+               
+               $('.delete').tap(function(){
+                   alert($('.file-path').val());
+                   file.remove({
+                       filePath:$('.file-path').val(),
+                       callback:function(err){
+                           if(err){
+                               alert('出错了');
+                               return;
+                           }
+                           alert('删除文件成功!');
+                       }
+                   });
+               });
+               
+               $('.write').tap(function(){
+                   alert($('.file-path').val());
+                   file.write({
+                       filePath:$('.file-path').val(),
+                       content:$('.file-content').val(),
+                       callback:function(err){
+                           if(err){
+                               alert('出错了');
+                               return;
+                           }
+                           alert('写入文件成功！!');
+                       }
+                   });
+               });
+               
+                $('.read').tap(function(){
+                   alert($('.file-path').val());
+                   file.read({
+                       filePath:$('.file-path').val(),
+                       callback:function(err,dt){
+                           if(err){
+                               alert('出错了');
+                               return;
+                           }
+                           alert(dt);
+                       }
+                   });
+               });
+               
+               $('.append').tap(function(){
+                   alert($('.file-path').val());
+                   file.append({
+                       filePath:$('.file-path').val(),
+                       content:$('.file-content').val(),
+                       callback:function(err,dt){
+                           if(err){
+                               alert('出错了');
+                               return;
+                           }
+                           alert('附加成功！');
+                       }
+                   });
+               });
+               
+           };
+           */
+           
+        </script>
+    </body>
+</html>

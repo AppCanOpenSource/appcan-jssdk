@@ -1,0 +1,31 @@
+{
+  "name": "appcan-lib",
+  "version": "0.1.17",
+  "homepage": "http://www.appcan.cn",
+  "scripts": {
+    "test": "coffee make test",
+    "dist": "coffee make dist",
+    "start": "coffee test/server.coffee"
+  },
+  "repository": "",
+  "license": {
+    "type": "MIT",
+    "url": ""
+  },
+  "devDependencies": {
+    "uglify-js": "2.4.x",
+    "express": "3.1.x",
+    "coffee-script": "1.5.x",
+    "shelljs": "0.1.x",
+    "qunitjs": "~1.15.0"
+  },
+  "dependencies": {
+    "grunt": "^0.4.5",
+    "grunt-compare-size": "~0.4.0",
+    "grunt-contrib-concat": "^0.5.1",
+    "grunt-contrib-jshint": "~0.10.0",
+    "grunt-contrib-uglify": "^0.5.1",
+    "grunt-jsonlint": "~1.0.4",
+    "gzip-js": "^0.3.2"
+  }
+}

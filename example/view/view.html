@@ -1,0 +1,300 @@
+<!doctype html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+        <meta charset="utf-8">
+        <title>模板引擎demo</title>
+        <link rel="stylesheet" href="../css/bootstrap/css/bootstrap.min.css">
+        <link rel="stylesheet" href="../css/main.css">
+        <style type="text/css">
+            .task-list li{
+                border-bottom:1px solid #CCC;
+                line-height:26px;
+            }
+            .split-block{
+                border:1px solid #ddd;
+                border-radius:4px;
+                padding:5px;
+                margin:5px;
+            }
+        </style>
+    </head>
+    <body>
+        <header class="container">
+            <div class="row">
+                <div class="col-xs-12 text-center">
+                    <h3>模板引擎</h3>
+                </div>
+            </div>
+        </header>
+        <div class="out-box container">
+            <div class="col-sm-2 nav-container">
+                <div class="nav-slide bs-docs-sidebar">
+                    <ul class="nav">
+                        <li><a href="#">模板引擎demo</a></li>
+                        <li><a href="#code1">代码实现(推荐)</a></li>
+                        <li><a href="#code2">代码实现二</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-sm-10 container">
+                <div class="form-horizontal">
+                    <div class="form-group">
+                        <label for="rc4-key" class="col-sm-2 control-label">要存储的key：</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control ls-key" placeholder="key">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="rc4-key" class="col-sm-2 control-label">要存储的内容:</label>
+                        <div class="col-sm-8">
+                            <textarea class="form-control rc4-content ls-content" rows="3"></textarea>
+                        </div>
+                     </div>
+                      <div class="form-group">
+                          <div class="col-sm-8 col-sm-offset-2">
+                              <button class="btn btn-default save">保存</button>
+                              <a href="view.html" class="btn btn-default" >刷新页面</a>
+                          </div>
+                      </div>
+                      <div class="form-group">
+                          <div class="col-sm-8 col-sm-offset-2">
+                              <ul class="task-list list-unstyled">
+                                  <li>
+                                      <span>
+                                          显示保存的值
+                                      </span>
+                                      <button type="button" class="close"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                                  </li>
+                              </ul>
+                          </div>
+                       </div>
+                 </div>
+
+                 <div class="row">
+                     <a id="code1"></a>
+                     <p class="col-sm-2 text-right">代码实现(推荐)：</p>
+                     <div class="col-sm-8">
+                         <p>模板：</p>
+                         <pre>
+ <%for(var k in tasks){%>
+     &lt;li&gt;
+         &lt;span style="color:rgba(234,22,234,0.6);display:inline-block;padding-right:30px;"&gt;
+             <%-k%>
+         &lt;/span&gt;
+         &lt;span&gt;
+             <% if(tasks[k].length > 40){ %>
+                 <%-tasks[k].substr(0,40)+'...'%>
+             <%} else{%>
+                 <%-tasks[k]%>
+             <%}%>
+         &lt;/span&gt;
+         &lt;button data-task-name="<%-k%>" type="button" class="close"&gt;&lt;span aria-hidden="true">&times;&lt;/span&gt;&lt;span class="sr-only">Close&lt;/span&gt;</button&gt;
+     &lt;/li>
+ <%}%>
+                         </pre>
+                         <p>js代码：</p>
+                         <pre>
+ //使用appcan use 方法，回调有两个变量，一个是最常用的dom操作 推荐做法
+ appcan.use(['storage','view'],function($,storage,view){
+
+     var render = view.render;
+     var local = storage.local;
+
+     var renderLocalStorage = function(){
+         var keys = local.keys();
+         var tasks = {};
+         $.each(keys,function(i,v){
+             tasks[v] = local.getVal(v);
+         });
+         var temp = $('#task-temp').html();
+         //渲染
+         render('.task-list',temp,{
+             tasks:tasks
+         });
+     };
+     ......
+     ......
+     ......
+ });
+                         </pre>
+                     </div>
+                 </div>
+
+                 <div class="row">
+                     <a id="code2"></a>
+                     <p class="col-sm-2 text-right">代码实现二：</p>
+                     <div class="col-sm-8">
+                         p>模板：</p>
+                         <pre>
+ <%for(var k in tasks){%>
+     &lt;li&gt;
+         &lt;span style="color:rgba(234,22,234,0.6);display:inline-block;padding-right:30px;"&gt;
+             <%-k%>
+         &lt;/span&gt;
+         &lt;span&gt;
+             <% if(tasks[k].length > 40){ %>
+                 <%-tasks[k].substr(0,40)+'...'%>
+             <%} else{%>
+                 <%-tasks[k]%>
+             <%}%>
+         &lt;/span&gt;
+         &lt;button data-task-name="<%-k%>" type="button" class="close"&gt;&lt;span aria-hidden="true">&times;&lt;/span&gt;&lt;span class="sr-only">Close&lt;/span&gt;</button&gt;
+     &lt;/li>
+ <%}%>
+                         </pre>
+                         <p>js代码：</p>
+                         <pre>
+ //与zepto结合的使用方式，不推荐
+ $(document).ready(function(){
+     var view = appcan.view;
+     var storage = appcan.storage;
+     var render = view.render;
+     var local = storage.local;
+
+     var renderLocalStorage = function(){
+         var keys = local.keys();
+         var tasks = {};
+         $.each(keys,function(i,v){
+             tasks[v] = local.getVal(v);
+         });
+         var temp = $('#task-temp').html();
+         render('.task-list',temp,{
+             tasks:tasks
+         });
+     };
+     ......
+     ......
+     ......
+
+ });
+                         </pre>
+                     </div>
+                 </div>
+            </div>
+        </div>
+        
+        <script id="task-temp" type="text/appcan-template">
+           <%for(var k in tasks){%>
+               <li>
+                   <span style="color:rgba(234,22,234,0.6);display:inline-block;padding-right:30px;">
+                       <%-k%>
+                   </span>
+                   <span>
+                       <% if(tasks[k].length > 40){ %>
+                           <%-tasks[k].substr(0,40)+'...'%>
+                       <%} else{%>
+                           <%-tasks[k]%>
+                       <%}%>
+                   </span>
+                   <button data-task-name="<%-k%>" type="button" class="close"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+               </li>
+           <%}%>
+        </script>
+        
+        
+        <script type="text/javascript" src="../../dist/appcan.js"></script>
+        <script type="text/javascript" src="../js/main.js"></script>
+        <script type="text/javascript">
+            //使用appcan use 方法，回调有两个变量，一个是最常用的dom操作 推荐做法
+            appcan.use(['storage','view'],function($,storage,view){
+
+                var render = view.render;
+                var local = storage.local;
+
+                var renderLocalStorage = function(){
+                    var keys = local.keys();
+                    var tasks = {};
+                    $.each(keys,function(i,v){
+                        tasks[v] = local.getVal(v);
+                    });
+                    var temp = $('#task-temp').html();
+                    render('.task-list',temp,{
+                        tasks:tasks
+                    });
+                };
+
+                $('.save').click(function(){
+                    var key = $('.ls-key').val();
+                    var content = $('.ls-content').val();
+                    if(!key || !content){
+                        alert('key 和 content 不能为空！');
+                        return;
+                    }
+
+                    //可以用对象的方式传参数
+                    //local.setVal({
+                    //    key:key,
+                    //    val:content
+                    //});
+
+                    //可以用碰头的参数
+                    local.setVal(key,content);
+                    renderLocalStorage();
+                });
+                renderLocalStorage();
+                $('.task-list').on('click','button',function(){
+                    var tn = $(this).data('task-name');
+                    if(!tn){
+                        return;
+                    }
+                    local.remove(tn);
+                    renderLocalStorage();
+                });
+            });
+
+
+
+
+            //与zepto结合的使用方式，不推荐
+            /*$(document).ready(function(){
+                var view = appcan.view;
+                var storage = appcan.storage;
+                var render = view.render;
+                var local = storage.local;
+
+                var renderLocalStorage = function(){
+                    var keys = local.keys();
+                    var tasks = {};
+                    $.each(keys,function(i,v){
+                        tasks[v] = local.getVal(v);
+                    });
+                    var temp = $('#task-temp').html();
+                    render('.task-list',temp,{
+                        tasks:tasks
+                    });
+                };
+
+                $('.save').click(function(){
+                    var key = $('.ls-key').val();
+                    var content = $('.ls-content').val();
+                    if(!key || !content){
+                        alert('key 和 content 不能为空！');
+                        return;
+                    }
+
+                    //可以用对象的方式传参数
+                    //local.setVal({
+                    //    key:key,
+                    //    val:content
+                    //});
+
+                    //可以用碰头的参数
+                    local.setVal(key,content);
+                    renderLocalStorage();
+                });
+                $('.task-list').on('click','button',function(){
+                    var tn = $(this).data('task-name');
+                    if(!tn){
+                        return;
+                    }
+                    local.remove(tn);
+                    renderLocalStorage();
+                });
+
+                renderLocalStorage();
+
+            });*/
+        </script>
+    </body>
+</html>

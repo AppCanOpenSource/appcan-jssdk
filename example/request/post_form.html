@@ -1,0 +1,225 @@
+<!doctype html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+        <meta charset="utf-8">
+        <title>http post form提交表单</title>
+        <link rel="stylesheet" href="../css/main.css">
+        <style type="text/css">
+            .task-list li{
+                border-bottom:1px solid #CCC;
+                line-height:26px;
+            }
+            .split-block{
+                border:1px solid #ddd;
+                border-radius:4px;
+                padding:5px;
+                margin:5px;
+            }
+        </style>
+    </head>
+    <body>
+        <header class="container">
+            <div class="row">
+                <div class="col-xs-12 text-center">
+                    <h3>http post form提交表单</h3>
+                </div>
+            </div>
+        </header>
+        <div class="out-box container">
+            <div class="col-sm-2 nav-container">
+                <div class="nav-slide bs-docs-sidebar">
+                    <ul class="nav">
+                        <li><a href="#">http post form提交表单</a></li>
+                        <li><a href="#code1">代码实现(推荐)</a></li>
+                        <li><a href="#code2">代码实现二</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-sm-10 container">
+                <form class="form-horizontal" name="update-user" method="post" action="http://192.168.1.103:8082/save_file.php">
+                    <div class="form-group">
+                        <label for="rc4-key" class="col-sm-2 control-label">地址：</label>
+                        <div class="col-sm-8">
+                            <div class="btn-group">
+                                <input type="text" name="ssss" class="form-control url-address" placeholder="例如：http://www.baidu.com">
+                                <span>
+                                    <input type="button" name="url" class="btn btn-default get-content" value="获取">
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-sm-8">
+                            <div class="btn-group">
+                                <input type="button" name="camera" class="form-control url-address" value="camera">
+                                <span>
+                                    <input type="color" name="color" class="btn btn-default get-content" value="获取">
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-sm-8">
+                            <div class="btn-group">
+                                <input type="text" name="file" ispath="true" class="form-control url-address" value="">
+                                <span>
+                                    <input type="range" name="range" class="btn btn-default get-content" value="获取">
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-8 col-sm-offset-2">
+                            <textarea name="content" class="form-control page-content" style="height:200px"></textarea>
+                        </div>
+                        <div class="col-sm-8 col-sm-offset-2">
+                            <div>预览：</div>
+                            <div class="preview"></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <input type="submit" value="提交">
+                    </div>
+                 </form>
+
+                 <div class="row">
+                     <a id="code1"></a>
+                     <p class="col-sm-2 text-right">代码实现(推荐)：</p>
+                     <div class="col-sm-8">
+                     <div class="prev">
+                     </div>
+                     </div>
+                 </div>
+            </div>
+        </div>
+        
+        
+        <script type="text/javascript" src="../../dist/appcan.js"></script>
+        <script type="text/javascript" src="../../main.js"></script>
+        <script type="text/javascript">
+        appcan.ready(function(){
+        
+            $('[name=camera]').tap(function(){
+                    uexWidgetOne.onMemoryWarning = function(isWarning, level){
+                        alert("warning");
+                    };
+                    //照相机拍照成功或出错的回调函数
+                    uexCamera.cbOpen = function(opCode, dataType, data){
+                        if(dataType == 0){
+                            $('[name=file]').val(data);
+                        }
+                        alert(data);
+                    };
+                    uexWidgetOne.cbError = function(opCode, errorCode, errorInfo){
+                        alert("errorCode:" + errorCode + "\nerrorInfo:" + errorInfo);
+                    };
+                    uexCamera.open();
+                });
+            
+            //异步请求
+            appcan.define('postForm',function($,exports,module){
+                var request = appcan.require('request');
+                var postForm = function(form,success,validate){
+                    if(!form){
+                        return;
+                    }
+                    form = $(form);
+                    var submitInputs = [];
+                    var inputTypes = {
+                        'color':1,
+                        'date':1,
+                        'datetime':1,
+                        'datetime-local':1,
+                        'email':1,
+                        'hidden':1,
+                        'month':1,
+                        'number':1,
+                        'password':1,
+                        'radio':1,
+                        'range':1,
+                        'search':1,
+                        'tel':1,
+                        'text':1,
+                        'time':1,
+                        'url':1,
+                        'week':1
+                    };
+                    var fileType = ['file'];
+                    var checkTypes = ['checkbox','radio'];
+                    var todoSupport = ['keygen'];
+                    var eleList = ['input','select','textarea'];
+                    var formData = {};
+                    
+                    success = success || function(){};
+                    
+                    function getFormData(){
+                        form.find(eleList.join(',')).each(function(i,v){
+                            if(v.tagName === 'INPUT'){
+                                var ele = $(v);
+                                var type = ele.attr('type');
+                                if(type in inputTypes){
+                                    if(ele.attr('ispath')){
+                                        formData[ele.attr('name')] = {
+                                            path:ele.val()
+                                        }
+                                    }else{
+                                        formData[ele.attr('name')] = ele.val();
+                                    }
+                                    
+                                    
+                                }
+                            }else{
+                                
+                            }
+                        });
+                    }
+                    
+                    
+                    form.on('submit',function(evt){
+                        var method = form.attr('method');
+                        var action = form.attr('action') || location.href;
+                        method = (method || 'POST').toUpperCase();
+                        getFormData();
+                        request.ajax({
+                            url:action,
+                            type:method,
+                            data:formData,
+                            success:success
+                        });
+                        
+                        return false;
+                    });
+                };
+                
+                
+                module.exports = postForm;
+                
+            });
+            
+           
+            appcan.postForm('[name=update-user]',function(data){
+                $('.prev').html(data);
+            });
+            
+        });
+        
+       
+        
+       /*
+       window.uexOnload = function(){
+           var request = appcan.request;
+           $('.get-content').tap(function(){
+                 var url = $('.url-address').val();
+                     request.ajax({
+                        url:url,
+                        dataType:"text",
+                        type:"GET",
+                        success:function(dt){
+                            $('.preview').html(dt);
+                            $(".page-content").val(dt);
+                        }
+                    });
+            });
+       };
+       */
+            
+        </script>
+    </body>
+</html>

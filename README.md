@@ -1,0 +1,2 @@
+# appcan-jssdk
+JSSDK

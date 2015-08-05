@@ -56,7 +56,6 @@ appcan.define("slider", function($, exports, module) {
             var self = this;
             
             if(!(anim === false )){
-                self.transition = false;
                 self.container.addClass("slider-anim");
                 self.container.on("webkitTransitionEnd",function(){
                     self.container.off("webkitTransitionEnd");
@@ -69,7 +68,6 @@ appcan.define("slider", function($, exports, module) {
                     self.emit("change",self,self.option.index);
                     self._moveTo(self.option.index,false);
                     self.isReset = true;
-                    self.transition = true;
                 });
             }
             var w=(-(self.option.index+1)*self.ele.offset().width);
@@ -83,15 +81,13 @@ appcan.define("slider", function($, exports, module) {
         },
         drag:function(d){
             var self = this;
-            if(self.transition){
-                var w=(-(self.option.index+1)*self.ele.offset().width)+d;
-                self.container.css("-webkit-transform", "translateX("+w+"px)");
-                self.isReset = false;
-            }
+            var w=(-(self.option.index+1)*self.ele.offset().width)+d;
+            self.container.css("-webkit-transform", "translateX("+w+"px)");
+            self.isReset = false;
         },
         reset:function(){
             var self = this;
-            if(!this.isReset && Math.abs(self.dragX)<30){
+            if(!this.isReset){
                 self._moveTo(self.option.index);
                 self.autoMove(self.option.auto);
             }
@@ -129,14 +125,12 @@ appcan.define("slider", function($, exports, module) {
                     clearInterval(self.timer);
                 }
                 self.drag(-evt._args.dx);
-                self.dragX = -evt._args.dx;
             });
             self.ele.off("swipeMoveRight").on("swipeMoveRight",function(evt){
                 if(self.timer) {
                     clearInterval(self.timer);
                 }
                 self.drag(evt._args.dx);
-                self.dragX = evt._args.dx;
             });
             
             //结束的时候
@@ -170,10 +164,12 @@ appcan.define("slider", function($, exports, module) {
                 var width = self.ele.width();
                 var height = self.ele.height();
                 var touch = evt.touches[0];
+                screenX1 =touch.screenX;
+                screenY1 =touch.screenY;
                 if(touch.pageX > left && touch.pageX < left+width && touch.pageY > top && touch.pageY < top+height){
                     appcan.window.disableBounce();
                     appcan.window.setMultilPopoverFlippingEnbaled(1);
-                    return false;
+                    return true;
                 }else{
                     if(bounceState == 1){
                         appcan.window.enableBounce();
@@ -187,11 +183,47 @@ appcan.define("slider", function($, exports, module) {
                 var width = self.ele.width();
                 var height = self.ele.height();
                 var touch = evt.touches[0];
+                screenX2 =touch.screenX;  
+                screenY2=touch.screenY;
                 if(touch.pageX > left && touch.pageX < left+width && touch.pageY > top && touch.pageY < top+height){
-                    appcan.window.disableBounce();
                     appcan.window.setMultilPopoverFlippingEnbaled(1);
                     if(self.timer) clearInterval(self.timer);
-                    return false;
+                    
+                    function GetSlideAngle(dx, dy) {
+                        return Math.atan2(dy, dx) * 180 / Math.PI;
+                    }
+                    //根据起点和终点返回方向 3：向上，4：向下，2：向左，1：向右,0：未滑动
+                    function GetSlideDirection(screenX1,screenX2,screenY1,screenY2){
+                        var dy = screenX2 - screenX1;
+                        var dx = screenY2 - screenY1;
+                        var result = 0;
+                
+                        //如果滑动距离太短
+                        if(Math.abs(dx) < 2 && Math.abs(dy) < 2) {
+                          return result;
+                        }
+                        var angle = GetSlideAngle(dx, dy);
+                        if(angle >= -45 && angle < 45) {
+                            result = 4;
+                        }else if (angle >= 45 && angle < 135) {
+                            result = 1;
+                        }else if (angle >= -135 && angle < -45) {
+                            result = 2;
+                        }
+                        else if ((angle >= 135 && angle <= 180) || (angle >= -180 && angle < -135)) {
+                            result = 3;
+                        }
+                        return result;
+                    }
+                    var direction = GetSlideDirection(screenX1,screenX2,screenY1,screenY2);
+                    if(direction==3||direction==4){
+                        appcan.window.enableBounce();
+                        return true;
+                    }
+                    else{
+                        appcan.window.disableBounce();
+                        return false;
+                    }
                 }
             });
             $(document).on("touchcancel",function(evt){

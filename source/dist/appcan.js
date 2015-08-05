@@ -7550,13 +7550,6 @@ appcan && appcan.define('request',function($,exports,module){
        var action = form.attr('action') || location.href;
        method = (method || 'POST').toUpperCase();
        getFormData();
-       var ajax = function(){
-            if(window.uexXmlHttpMgr){
-                ajax.apply(null,arguments);
-            }else{
-                Zepto.ajax.apply(null,arguments);
-            }
-        };
        ajax({
            url:action,
            type:method,
@@ -9415,7 +9408,6 @@ window.appcan && appcan.define('frame',function($,exports,module){
     create:2015.08.03
     update:______/___author___
 
-
 */
 ;(function() {
     var requestAjax = appcan.request.ajax;
@@ -9425,7 +9417,7 @@ window.appcan && appcan.define('frame',function($,exports,module){
     var offlineKey = 'offlinedata';
 
     var readFile = appcan.file.read;
-    var readSecureFile = appcan.file.Secure;
+    var readSecureFile = appcan.file.readSecure;
     var writeFile = appcan.file.write;
     var writeSecureFile = appcan.file.writeSecure;
 

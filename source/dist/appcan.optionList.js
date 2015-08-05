@@ -25,6 +25,9 @@ var model_hiddenLine =  '<li style="position: relative;border-bottom:1px solid #
             return true;
     }
 
+    /*
+        optionList对象函数
+    */
     function OptionListView(option) {
         appcan.extend(this, appcan.eventEmitter);
         var self = this;
@@ -59,6 +62,11 @@ var model_hiddenLine =  '<li style="position: relative;border-bottom:1px solid #
     };
 
     OptionListView.prototype = {
+        /*
+            绑定optionList数据到模板
+            @param Array data 需要绑定到模板的JSON对象数组 
+            @param String group 
+        */
         buildListview : function(data,group) {
              
             var container = $("<ul></ul>")
@@ -72,10 +80,10 @@ var model_hiddenLine =  '<li style="position: relative;border-bottom:1px solid #
                     group:group
                 }));
                 ele[0]["lv_data"] = data[i];
-                ele.on('tap', function(evt) {
+                ele.off('tap').on('tap', function(evt) {
                     self.itemClick(evt);
                 });
-                ele.on('longTap', function(evt) {
+                ele.off('longTap').on('longTap', function(evt) {
                     if(evt.currentTarget && $(evt.currentTarget)[0].tagName =="LI"){
                         var index = $(evt.currentTarget).data("index");
                         if(data[index].onLongTap && typeof data[index].onLongTap == "function"){
@@ -85,7 +93,7 @@ var model_hiddenLine =  '<li style="position: relative;border-bottom:1px solid #
                         }
                     }
                 });
-                ele.on('cancleTap', function(evt) {
+                ele.off('cancleTap').on('cancleTap', function(evt) {
                     self.longTapItem(evt)
                 });
                
@@ -95,8 +103,12 @@ var model_hiddenLine =  '<li style="position: relative;border-bottom:1px solid #
             var startX = 0,startY = 0,moveX = 0,moveY = 0;
             var delWidth = $(".scrollRight").width();
             var startMarginLeft = 0;
-            var scrollEnable = true;//是否允许左右滑动
-            var flag = 0;//是否已经计算过角度
+
+            //用于是否允许左右滑动
+            var scrollEnable = true;
+
+            //用于判断是否已经计算过角度
+            var flag = 0;
             var mousedown = false;
     
             //返回角度
@@ -119,7 +131,7 @@ var model_hiddenLine =  '<li style="position: relative;border-bottom:1px solid #
                     });
                 }
                 scrollEnable = true;
-                flag = 0;//是否已经计算角度标记
+                flag = 0;//用于判断是否已经计算角度标记
                 var touch = evt.touches[0];
                 startX = touch.pageX;//起始x坐标
                 startY = touch.pageY;//起始Y坐标
@@ -147,7 +159,8 @@ var model_hiddenLine =  '<li style="position: relative;border-bottom:1px solid #
                     }
                     
                     var marginLeft = startMarginLeft + moveX - startX;
-                    marginLeft = marginLeft<0?marginLeft:0;//不能滑动到右边界外
+                    //不能滑动到右边界外
+                    marginLeft = marginLeft<0?marginLeft:0;
                     if (flag == 0) {
                         var startPoint = {
                             x : startX,
@@ -339,6 +352,12 @@ var model_hiddenLine =  '<li style="position: relative;border-bottom:1px solid #
             }
             return con;
         },
+
+        /*
+            添加数据到optionList
+            @param Array data 用于存储列表条目显示的文字图片等信息的JSON对象数组
+            @param Number dir 用于设定数据是在列表前部添加还是后不。0为前部添加。默认为1
+        */
         add : function(data, dir) {
             var self = this;
             var container = self.buildListview(data);
@@ -350,6 +369,10 @@ var model_hiddenLine =  '<li style="position: relative;border-bottom:1px solid #
             };
             return self;
         },
+        /*
+            设置列表绑定的数据
+            @param Array data JSON对象数组，用于存储列表条目显示的文字图片等信息
+        */
         set : function(data) {
             var self = this;
             if(uexWindow.getBounce && typeof uexWindow.getBounce === 'function'){
@@ -371,7 +394,7 @@ var model_hiddenLine =  '<li style="position: relative;border-bottom:1px solid #
                         var that = this;
                         var index = $(that).data("index");
                         var length = $(".scroll-right").length;
-        
+                        
                         if(data[index].hideOption.onClick && typeof data[index].hideOption.onClick == "function"){
                             data[index].hideOption.onClick(e,index,length);
                             e.stopPropagation();
@@ -407,17 +430,35 @@ var model_hiddenLine =  '<li style="position: relative;border-bottom:1px solid #
             }
             
         },
+        /*
+            列表条目的点击事件
+        */
         itemClick : function(evt) {
             var self = this;
             var obj = $(evt.currentTarget);
-            this.emit("click", self, obj, obj[0]["lv_data"], $(evt.target));
+            //只允许执行最后一次绑定的回调
+            if(this.__events['click'].length>1){
+                this.__events['click'].pop()(obj, obj[0]["lv_data"], $(evt.target));
+            }else{
+                this.__events['click'][0](obj, obj[0]["lv_data"], $(evt.target))
+            }
+
+            //this.emit("click", self, obj, obj[0]["lv_data"], $(evt.target));
         },
+        /*
+            列表条目的长点击事件
+        */
         longTapItem : function(evt) {
             if (this.option.hasTouchEffect) {
                 var obj = $(evt.currentTarget);
                 obj.removeClass(this.option.touchClass);
             }
-        },delete : function(e){
+        },
+        /*
+            列表条目的删除方法
+            @param Object e 列表条目的触发对象
+        */
+        delete : function(e){
             if(e.currentTarget){
                 $(e.currentTarget).parent("li").remove();
             }

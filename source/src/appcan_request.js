@@ -537,13 +537,6 @@ appcan && appcan.define('request',function($,exports,module){
        var action = form.attr('action') || location.href;
        method = (method || 'POST').toUpperCase();
        getFormData();
-       var ajax = function(){
-            if(window.uexXmlHttpMgr){
-                ajax.apply(null,arguments);
-            }else{
-                Zepto.ajax.apply(null,arguments);
-            }
-        };
        ajax({
            url:action,
            type:method,

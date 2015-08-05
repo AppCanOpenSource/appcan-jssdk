@@ -2,6 +2,9 @@ appcan.define("treeview", function($, exports, module) {
 
     var listTmp ='<li class="treeview">\
         <div class="treeview-header ubb bc-border bc-text ub uinn ub-ac">\
+        <%if (option.hasIcon) {%>\
+        <div class="lis-icon-s ub-img" style="background-image:url(<%=icon%>)"></div>\
+        <%}%>\
         <div class="ub-f1 ut-s"><%=header%></div>\
         <%if(option.hasAngle){%>\
         <div class="fa fa-angle-down ulev2 utra sc-text"></div>\
@@ -99,6 +102,7 @@ appcan.define("treeview", function($, exports, module) {
                 var content = self.getContent(data[i], settings);
                 var ele = $(html({
                     header : data[i].header,
+                    icon:data[i].icon,
                     content : '',
                     option : self.option
                 }));

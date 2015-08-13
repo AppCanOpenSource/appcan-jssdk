@@ -72,8 +72,10 @@ appcan.define("slider", function($, exports, module) {
             }
             var w=(-(self.option.index+1)*self.ele.offset().width);
             self.container.css("-webkit-transform", "translateX("+w+"px)");
-            var width = self.ele.offset().width / self.option.itemCount;
-            self.focus.css("-webkit-transform", "translateX("+self.option.index * width+"px)");
+            if(self.option.hasIndicator){
+                var width = self.ele.offset().width / self.option.itemCount;
+                self.focus.css("-webkit-transform", "translateX("+self.option.index * width+"px)");
+            }
             if(self.option.hasLabel){
                 self.label.html(self.option.data[self.option.index+1].label);
             }
@@ -113,11 +115,12 @@ appcan.define("slider", function($, exports, module) {
                 self.label = self.label || $('<div class="uinn1 ulev-1 ut-s label sc-text-hint"></div>');
                 self.ele.append(self.label);
             }
-            self.focus = self.focus || $('<div class="utra focus bc-head"></div>');
-            self.focus.css("width", width);
-            self.focus.css("-webkit-transform", "translateX("+self.option.index * width+"px)");
-            self.ele.append(self.focus);
-            
+            if(self.option.hasIndicator){
+                self.focus = self.focus || $('<div class="utra focus bc-head"></div>');
+                self.focus.css("width", width);
+                self.focus.css("-webkit-transform", "translateX("+self.option.index * width+"px)");
+                self.ele.append(self.focus);
+            }
             
             self._moveTo(self.option.index,false);
             self.ele.off("swipeMoveLeft").on("swipeMoveLeft",function(evt){
@@ -158,7 +161,7 @@ appcan.define("slider", function($, exports, module) {
                 self._moveTo(self.option.index);
                 self.autoMove(self.option.auto)
             });
-			$(document).on("touchstart",function(evt){
+            $(document).on("touchstart",function(evt){
                 var left = self.ele.offset().left;
                 var top = self.ele.offset().top;
                 var width = self.ele.width();
@@ -237,8 +240,8 @@ appcan.define("slider", function($, exports, module) {
                 }
                 if(touch.pageX > left && touch.pageX < left+width && touch.pageY > top && touch.pageY < top+height){
                     appcan.window.setMultilPopoverFlippingEnbaled(0);
-                    return false;
                 }
+                return false;
             });
             $(document).on("touchend",function(evt){
                 var left = self.ele.offset().left;
@@ -251,8 +254,8 @@ appcan.define("slider", function($, exports, module) {
                 }
                 if(touch.pageX > left && touch.pageX < left+width && touch.pageY > top && touch.pageY < top+height){
                     appcan.window.setMultilPopoverFlippingEnbaled(0);
-                    return false;
                 }
+                return false;
             });
             
             return self;

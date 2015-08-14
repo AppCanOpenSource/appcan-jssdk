@@ -82,3 +82,9 @@ v 0.1.16
 v 0.1.17
 修复appcan.request.ajax兼容适配web/微信
 
+v 0.1.18
+
+修改appcan.slider.js 判断用户在slider上的滑动手势，手势为上、下时返回页面可上下滑动。原来的slider.js没有对hasIndicator属性做判断，现在添加了判断
+
+修改appcan.treeview.js, treeview主节点可以增加图标
+

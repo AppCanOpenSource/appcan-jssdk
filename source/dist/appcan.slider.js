@@ -2,7 +2,11 @@ appcan.define("slider", function($, exports, module) {
     var model_item = '<div class="slider-item ub-fh ub-fv ub-img1 <%=data.id%>" style="background-image:url(<%=data.img%>)">\
     <span class="uabs"><%=data.label%></span>\
     </div>';
+    var model_Conitem='<div class="slider-item1 ub-fh ub-fv" id="<%=option.index%>">\
+     <div style="font-size:<%=option.size%>px;white-space:normal;word-wrap: break-word;" ><img src="css/res/28364.jpg"></div>\
+     </div>';
     var itemTmp = appcan.view.template(model_item);
+    var ConitemTmp=appcan.view.template(model_Conitem);
     function isWindows(){
         if(!('ontouchstart' in window)) return true;
     }
@@ -14,6 +18,8 @@ appcan.define("slider", function($, exports, module) {
             selector : "body",
             dir:'hor',
             hasIndicator:true,
+            hasContent:false,
+            canDown:true,
             hasLabel:false,
             aspectRatio:0,
             index:0,
@@ -27,7 +33,7 @@ appcan.define("slider", function($, exports, module) {
                 bounceState = dt;
             });
         }else{
-            bounceState =1;
+             bounceState =1;
         }
         self.ele = $(self.option.selector);
         if(self.option.aspectRatio){
@@ -44,10 +50,20 @@ appcan.define("slider", function($, exports, module) {
     SliderView.prototype = {
         buildItem:function(data){
             var self = this;
-            var item = $(itemTmp({
+         if(self.option.hasContent){
+              var item = $(ConitemTmp({
                     data : data,
                     option : self.option
                 }));
+            console.log("content");
+            }else{
+                          var item = $(itemTmp({
+                    data : data,
+                    option : self.option
+                }));
+  
+            console.log("picture");  
+            }
             item[0]["lv_data"]=data;
             
             return item;
@@ -111,8 +127,23 @@ appcan.define("slider", function($, exports, module) {
             self.ele.append(self.container);
             
             var width = self.ele.offset().width / self.option.itemCount;
-            if(self.option.hasLabel){
-                self.label = self.label || $('<div class="uinn1 ulev-1 ut-s label sc-text-hint"></div>');
+           if(self.option.hasLabel){
+                self.label = $('<div class="label1" ></div>');
+                self.label.label = $('<div class="ulev-1 ut-s label sc-text-hint uinn-l1"></div>');
+                var dian = $('<div class="labelzan" ></div>');
+                var zamcon = $('<div class="labelcon1" name="labContent"></div>');
+                var zamcon1 = $('<div class="labelcon" name="labContent"></div>');
+
+                for(var tt = 0;tt < self.option.itemCount;tt++){
+                    if(tt == 0){
+                        dian.append(zamcon);
+                    }else{
+                        dian.append('<div class="labelcon" name="labContent"></div>');
+                    }
+                }
+                self.label.append(self.label.label);
+                dian.css("width",self.option.itemCount+"em");
+                self.label.append(dian);
                 self.ele.append(self.label);
             }
             if(self.option.hasIndicator){
@@ -145,10 +176,35 @@ appcan.define("slider", function($, exports, module) {
                 self.emit("clickItem",self,self.option.index,data[self.option.index+1]);
             });
             self.ele.off("swipeLeft").on("swipeLeft",function(evt){
+                    var name = $("div[name=labContent]");
+                    var index = self.option.index + 1;
+                    if(index >= self.option.itemCount){
+                        index = 0;
+                    }
+                    for(var i = 0;i < name.length;i++){
+                        if(i == index){
+                            name[i].className = 'labelcon1';
+                        }else{
+                            name[i].className = 'labelcon';
+                        }
+                    }
                 self._moveTo(++self.option.index);
                 self.autoMove(self.option.auto)
             });
             self.ele.off("swipeRight").on("swipeRight",function(evt){
+                
+                 var name = $("div[name=labContent]");
+                    var index = self.option.index - 1;
+                    if(index < 0){
+                        index = self.option.itemCount - 1;
+                    }
+                    for(var i = 0;i < name.length;i++){
+                        if(i == index){
+                            name[i].className = 'labelcon1';
+                        }else{
+                            name[i].className = 'labelcon';
+                        }
+                    }
                 self._moveTo(--self.option.index);
                 self.autoMove(self.option.auto);
             });
@@ -162,10 +218,12 @@ appcan.define("slider", function($, exports, module) {
                 self.autoMove(self.option.auto)
             });
             $(document).on("touchstart",function(evt){
+              
                 var left = self.ele.offset().left;
                 var top = self.ele.offset().top;
                 var width = self.ele.width();
                 var height = self.ele.height();
+                if(self.option.canDown){
                 var touch = evt.touches[0];
                 screenX1 =touch.screenX;
                 screenY1 =touch.screenY;
@@ -179,12 +237,26 @@ appcan.define("slider", function($, exports, module) {
                     }
                     appcan.window.setMultilPopoverFlippingEnbaled(0);
                 }
+                }else{
+                    var touch = evt.touches[0];
+                if(touch.pageX > left && touch.pageX < left+width && touch.pageY > top && touch.pageY < top+height){
+                    appcan.window.disableBounce();
+                    appcan.window.setMultilPopoverFlippingEnbaled(1);
+                    return false;
+                }else{
+                    if(bounceState == 1){
+                        appcan.window.enableBounce();
+                    }
+                    appcan.window.setMultilPopoverFlippingEnbaled(0);
+                }
+                }
             });
             $(document).on("touchmove",function(evt){
                 var left = self.ele.offset().left;
                 var top = self.ele.offset().top;
                 var width = self.ele.width();
                 var height = self.ele.height();
+                if(self.option.canDown){
                 var touch = evt.touches[0];
                 screenX2 =touch.screenX;  
                 screenY2=touch.screenY;
@@ -228,12 +300,22 @@ appcan.define("slider", function($, exports, module) {
                         return false;
                     }
                 }
+                }else{
+                    var touch = evt.touches[0];
+                if(touch.pageX > left && touch.pageX < left+width && touch.pageY > top && touch.pageY < top+height){
+                    appcan.window.disableBounce();
+                    appcan.window.setMultilPopoverFlippingEnbaled(1);
+                    if(self.timer) clearInterval(self.timer);
+                    return false;
+                }
+                }
             });
             $(document).on("touchcancel",function(evt){
                 var left = self.ele.offset().left;
                 var top = self.ele.offset().top;
                 var width = self.ele.width();
                 var height = self.ele.height();
+                if(self.option.canDown){
                 var touch = evt.touches[0];
                 if(bounceState == 1){
                     appcan.window.enableBounce();
@@ -242,12 +324,16 @@ appcan.define("slider", function($, exports, module) {
                     appcan.window.setMultilPopoverFlippingEnbaled(0);
                 }
                 return false;
+                }else{
+                    appcan.window.setMultilPopoverFlippingEnbaled(0);
+                }
             });
             $(document).on("touchend",function(evt){
                 var left = self.ele.offset().left;
                 var top = self.ele.offset().top;
                 var width = self.ele.width();
                 var height = self.ele.height();
+                if(self.option.canDown){
                 var touch = evt.touches[0];
                 if(bounceState == 1){
                     appcan.window.enableBounce();
@@ -256,6 +342,9 @@ appcan.define("slider", function($, exports, module) {
                     appcan.window.setMultilPopoverFlippingEnbaled(0);
                 }
                 return false;
+                }else{
+                    appcan.window.setMultilPopoverFlippingEnbaled(0);
+                }
             });
             
             return self;

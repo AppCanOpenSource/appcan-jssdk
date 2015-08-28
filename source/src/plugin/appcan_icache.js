@@ -3,7 +3,7 @@
  */
 appcan.define("icache", function($, exports, module) {
     var opid = 1000;
-    var CACHE_PATH = "wgt://icache/";
+    var CACHE_PATH = "box://icache/";
     function iCache(option) {
         var self = this;
         appcan.extend(this, appcan.eventEmitter);
@@ -31,7 +31,7 @@ appcan.define("icache", function($, exports, module) {
                 status : status
             });
         }
-        uexFileMgr.getFileRealPath("wgt://");
+        uexFileMgr.getFileRealPath("box://");
         self.on("NEXT_SESSION", self._next);
 
     }

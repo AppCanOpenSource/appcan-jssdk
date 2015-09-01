@@ -1105,10 +1105,6 @@ window.$ === undefined && (window.$ = Zepto) && (window.jQuery = window.$)
   $.fn.trigger = function(event, args){
     event = (isString(event) || $.isPlainObject(event)) ? $.Event(event) : compatible(event)
     event._args = args
-    if(event.type == $.support.transition.end && $.event.special.bsTransitionEnd){
-        $(this).trigger("bsTransitionEnd");
-        return;
-    }
     return this.each(function(){
       // items in the collection might not be DOM elements
       if('dispatchEvent' in this) this.dispatchEvent(event)

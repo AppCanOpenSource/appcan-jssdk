@@ -387,6 +387,7 @@ var Zepto = (function() {
   $.fn = {
     // Because a collection acts like an array
     // copy over these useful array functions.
+    jquery : "1.11.2",
     forEach: emptyArray.forEach,
     reduce: emptyArray.reduce,
     push: emptyArray.push,
@@ -878,7 +879,7 @@ var Zepto = (function() {
 })()
 
 window.Zepto = Zepto
-window.$ === undefined && (window.$ = Zepto)
+window.$ === undefined && (window.$ = Zepto) && (window.jQuery = window.$)
 
 ;(function($){
   var _zid = 1, undefined,
@@ -965,7 +966,7 @@ window.$ === undefined && (window.$ = Zepto)
     })
   }
 
-  $.event = { add: add, remove: remove }
+  $.event = { add: add, remove: remove, special:{}}
 
   $.proxy = function(fn, context) {
     var args = (2 in arguments) && slice.call(arguments, 2)
@@ -1104,6 +1105,10 @@ window.$ === undefined && (window.$ = Zepto)
   $.fn.trigger = function(event, args){
     event = (isString(event) || $.isPlainObject(event)) ? $.Event(event) : compatible(event)
     event._args = args
+    if(event.type == $.support.transition.end && $.event.special.bsTransitionEnd){
+        $(this).trigger("bsTransitionEnd");
+        return;
+    }
     return this.each(function(){
       // items in the collection might not be DOM elements
       if('dispatchEvent' in this) this.dispatchEvent(event)

@@ -219,6 +219,9 @@
             var filename = fileUrl;
             var localFilePath = baseFilePath + filename + '.txt';
             var saveData = {};
+            if((typeof(fileData)=="object")&&(Object.prototype.toString.call(fileData).toLowerCase()=="[object object]")&&!fileData.length){
+            fileData=JSON.stringify(fileData);    
+            }
             var now = new Date().getTime();
             var data=fileData;
             writeFileParams ={

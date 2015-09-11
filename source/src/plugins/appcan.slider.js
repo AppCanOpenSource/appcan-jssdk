@@ -2,11 +2,7 @@ appcan.define("slider", function($, exports, module) {
     var model_item = '<div class="slider-item ub-fh ub-fv ub-img1 <%=data.id%>" style="background-image:url(<%=data.img%>)">\
     <span class="uabs"><%=data.label%></span>\
     </div>';
-    var model_Conitem='<div class="slider-item1 ub-fh ub-fv" id="<%=option.index%>">\
-     <div style="font-size:<%=option.size%>px;white-space:normal;position:absolute;left:0;top:0;word-wrap: break-word;" ><%=data.note%></div>\
-     </div>';
     var itemTmp = appcan.view.template(model_item);
-    var ConitemTmp=appcan.view.template(model_Conitem);
     function isWindows(){
         if(!('ontouchstart' in window)) return true;
     }
@@ -18,7 +14,6 @@ appcan.define("slider", function($, exports, module) {
             selector : "body",
             dir:'hor',
             hasIndicator:true,
-            hasContent:false,
             canDown:true,
             hasCircle:true,
             hasLabel:false,
@@ -33,8 +28,8 @@ appcan.define("slider", function($, exports, module) {
                 bounceState = dt;
             });
         }else{
-              bounceState =1;
-            }
+             bounceState =1;
+         }
         self.ele = $(self.option.selector);
         self.ele.css({'-webkit-transform':'translateZ(0)','transform':'translateZ(0)'});
         if(self.option.aspectRatio){
@@ -51,17 +46,10 @@ appcan.define("slider", function($, exports, module) {
     SliderView.prototype = {
         buildItem:function(data){
             var self = this;
-         if(self.option.hasContent){
-            var item = $(ConitemTmp({
-                    data : data,
-                    option : self.option
-                }));
-            }else{
             var item = $(itemTmp({
                     data : data,
                     option : self.option
                 }));
-            }
             item[0]["lv_data"]=data;
             return item;
         },
@@ -69,6 +57,7 @@ appcan.define("slider", function($, exports, module) {
             var self = this;
             if(!(anim === false )){
                 self.container.addClass("slider-anim");
+                swipe=false;
                 self.container.on("webkitTransitionEnd",function(){
                     self.container.off("webkitTransitionEnd");
                     self.container.removeClass("slider-anim");

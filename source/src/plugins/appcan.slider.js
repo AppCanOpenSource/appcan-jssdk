@@ -36,8 +36,7 @@ appcan.define("slider", function($, exports, module) {
               bounceState =1;
             }
         self.ele = $(self.option.selector);
-        self.ele.css('-webkit-transform','translateZ(0)');
-        self.ele.css('transform','translateZ(0)');
+        self.ele.css({'-webkit-transform':'translateZ(0)','transform':'translateZ(0)'});
         if(self.option.aspectRatio){
             self.ele.css("height",self.ele.offset().width*self.option.aspectRatio);
         }

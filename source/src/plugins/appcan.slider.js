@@ -34,7 +34,7 @@ appcan.define("slider", function($, exports, module) {
             });
         }else{
               bounceState =1;
-         }
+            }
         self.ele = $(self.option.selector);
         self.ele.css('-webkit-transform','translateZ(0)');
         self.ele.css('transform','translateZ(0)');

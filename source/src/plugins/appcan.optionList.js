@@ -362,11 +362,22 @@ var model_hiddenLine =  '<li style="position: relative;border-bottom:1px solid #
             var self = this;
             var container = self.buildListview(data);
             if (dir || dir == 1)
-                self.ele.append(container)
+                self.ele.append(container);
             else {
                 var first = self.ele.children().first();
                 first.prepend(container);
             };
+            //点击右边隐藏部分执行回调
+            $(".scroll-right").on("tap",function(e){
+                var that = this;
+                var index = $(that).data("index");
+                var length = $(".scroll-right").length;
+                
+                if(data[index].hideOption.onClick && typeof data[index].hideOption.onClick == "function"){
+                    data[index].hideOption.onClick(e,index,length);
+                    e.stopPropagation();
+                }
+            }); 
             return self;
         },
         /*

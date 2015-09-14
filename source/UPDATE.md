@@ -88,3 +88,12 @@ v 0.1.18
 
 修改appcan.treeview.js, treeview主节点可以增加图标
 
+v 0.1.19
+
+appcan.file.read和appcan.file.write方法bug修复。	
+修改缓存文件保存路径，适用于主应用存在子应用时缓存文件保存同一路径下
+
+修改zepto.js扩展到jquery,适配bootstrap使其依赖zepto
+slider与ajax的修改
+修复optionList调用add方法的右侧隐藏区域onclick回调未执行的bug
+

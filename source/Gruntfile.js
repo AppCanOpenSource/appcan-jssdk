@@ -81,6 +81,12 @@ module.exports = function( grunt ) {
                 ],
                 dest: 'dist/appcan_base.js',
             },
+            control:{
+                src:[
+                    'src/plugins/appcan.control.js'
+                ],
+                dest:'dist/appcan.control.js'
+            },
             plugin: {
                 src: [
                      'src/plugin/appcan_plugin.js'

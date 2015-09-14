@@ -1,4 +1,4 @@
-/*! appcan v0.1.18 |  from 3g2win.com *//* Zepto v1.1.4 - zepto event ajax form ie - zeptojs.com/license */
+/*! appcan v0.1.19 |  from 3g2win.com *//* Zepto v1.1.4 - zepto event ajax form ie - zeptojs.com/license */
 
 var Zepto = (function() {
   var undefined, key, $, classList, emptyArray = [], slice = emptyArray.slice, filter = emptyArray.filter,
@@ -387,6 +387,7 @@ var Zepto = (function() {
   $.fn = {
     // Because a collection acts like an array
     // copy over these useful array functions.
+    jquery : "1.11.2",
     forEach: emptyArray.forEach,
     reduce: emptyArray.reduce,
     push: emptyArray.push,
@@ -878,7 +879,7 @@ var Zepto = (function() {
 })()
 
 window.Zepto = Zepto
-window.$ === undefined && (window.$ = Zepto)
+window.$ === undefined && (window.$ = Zepto) && (window.jQuery = window.$)
 
 ;(function($){
   var _zid = 1, undefined,
@@ -965,7 +966,7 @@ window.$ === undefined && (window.$ = Zepto)
     })
   }
 
-  $.event = { add: add, remove: remove }
+  $.event = { add: add, remove: remove, special:{}}
 
   $.proxy = function(fn, context) {
     var args = (2 in arguments) && slice.call(arguments, 2)
@@ -4964,7 +4965,7 @@ window.$ === undefined && (window.$ = Zepto)
     };
     
     //添加appcan 版本
-    appcan.version = '0.1.18';
+    appcan.version = '0.1.19';
     
     var errorInfo = {
         moduleName:'模块的名字必须为字符串并且不能为空！',
@@ -6361,7 +6362,7 @@ appcan && appcan.define('eventEmitter',function($,exports,module){
     appcan.extend(eventEmitter);
     module.exports = eventEmitter;
 });
-;
+;;
 /*
     author:dushaobin
     email:shaobin.du@3g2win.com
@@ -6389,31 +6390,38 @@ appcan && appcan.define('file',function($,exports,module){
     */
     
     var existQueue = {};//出来是否存在的队列
+    var writeGlobalQueue = [];//写队列
+    var readGlobalQueue = [];//读队列
+    var readOpenGlobalQueue = [];//读队列
+    var statQueue = [];//stat方法使用队列
+    var statQueueUsed = [];
     
     function processExistCall(optId,dataType,data){
-        var callback = existQueue['exist_call_'+optId];
+        //var callback = existQueue['exist_call_'+optId];
+        var callback = existQueue['exist_call_'+optId].cb;
+        var filePath = existQueue['exist_call_'+optId].fp;
         if(appcan.isFunction(callback)){
             if(dataType == 2){
-                callback(null,data,dataType,optId);
+                callback(null,data,dataType,optId,filePath);
             }else{
-                callback(new Error('exist file error'),data,
-                    dataType,optId);
+                callback(new Error('exist file error'),data,dataType,optId,filePath);
             }
         }
         //当调用一次后释放掉
         delete existQueue['exist_call_'+optId];
     }
     
-    function exists(filePath,callback){
+    function exists(filePath,callback,optId){
         var argObj = null;
         if(arguments.length === 1 && appcan.isPlainObject(filePath)){
             argObj = filePath;
             filePath = argObj.filePath;
             callback = argObj.callback;
+            optId = argObj.optId;
         }
-        var optId = getOptionId();
+        optId = optId || getOptionId();
         if(appcan.isFunction(callback)){
-            existQueue['exist_call_' + optId] = callback;
+            existQueue['exist_call_' + optId] = {cb:callback,fp:filePath};
             uexFileMgr.cbIsFileExistByPath = function(optId,dataType,data){
                 processExistCall.apply(null,arguments);
             };
@@ -6421,13 +6429,11 @@ appcan && appcan.define('file',function($,exports,module){
         uexFileMgr.isFileExistByPath(optId,filePath);
         close(optId);
     }
-
+    
     /*
     返回文件的相关信息
     @param String filePath
     @param Function callback
-
-
     */
     
     function stat(filePath,callback){
@@ -6437,11 +6443,29 @@ appcan && appcan.define('file',function($,exports,module){
             filePath = argObj.filePath;
             callback = argObj.callback;
         }
+        
+        if(statQueue.length > 0){
+            statQueue.push({fp:filePath,cb:callback});
+        }else{
+            statQueue.push({fp:filePath,cb:callback});
+            execStatQueue();
+        }
+    }
+    
+    //执行存在队列
+    function execStatQueue(){
+        if(statQueue.length < 1){
+            return;
+        }
+        var execStat = statQueue[0];
+        var filePath = execStat.fp;
+        var callback = execStat.cb;
+        
         if(appcan.isFunction(callback)){
             uexFileMgr.cbGetFileTypeByPath = function(optId,dataType,data){
-                if(dataType != 2){
-                    callback(new Error('get file type error'),null,
-                        dataType,optId);
+                if(dataType != 2){                 
+                    callback(new Error('get file type error'),null,dataType,optId,filePath);
+                    //processStatGlobalQueue(new Error('get file type error'),null,dataType,optId);
                     return;
                 }
                 var res = {};
@@ -6451,21 +6475,64 @@ appcan && appcan.define('file',function($,exports,module){
                 if(data == 1){
                     res.isDirectory = true;
                 }
-                callback(null,res,dataType,optId);
+                callback(null,res,dataType,optId,filePath);
+                //processStatGlobalQueue(null,res,dataType,optId);
+                statQueue.shift();
+                if(statQueue.length){
+                    execStatQueue();
+                }else{
+                    //alert('exec over');
+                }
             };
+        }else{
+            statQueue.shift();
+            if(statQueue.length){
+                execStatQueue();
+            }
         }
         uexFileMgr.getFileTypeByPath(filePath);
     }
 
-
+    /*
+                        处理全局回调read消息
+        @param string msg 传递过来的消息
+    
+    */
+    function processReadGlobalQueue(err,data,dataType,optId){
+        if(readGlobalQueue.length > 0){
+            $.each(readGlobalQueue,function(i,v){
+                if(v && v.cb && appcan.isFunction(v.cb)){
+                    if(v.readOptId == optId){
+                        v.cb(err,data,dataType,optId);
+                    }
+                }
+            });
+        }
+        return
+    }
+    
+   /*
+                        处理全局回调readOpen消息
+        @param string msg 传递过来的消息
+    
+    */
+    function processReadOpenGlobalQueue(err,data,dataType,optId){
+        if(readOpenGlobalQueue.length > 0){
+            $.each(readOpenGlobalQueue,function(i,v){
+                if(v && v.cb && appcan.isFunction(v.cb)){
+                    if(v.optId == optId){
+                        v.cb(err,data,dataType,optId);
+                    }
+                }
+            });
+        }
+        return
+    }
 
     /*
     读取文件内容
     @param String filePath 文件路径
     @param String callback 结果回调
-
-
-
     */
     function read(filePath,length,callback){
         var argObj = null;
@@ -6484,33 +6551,56 @@ appcan && appcan.define('file',function($,exports,module){
         }
         callback = appcan.isFunction(callback)?callback:function(){};
         length = length || -1;
-        exists(filePath,function(err,res){
+        var optId = getOptionId();
+        readGlobalQueue.push({fPath:filePath,cb:callback,readOptId:optId});
+        exists(filePath,function(err,res,dataType,optId,filePath){
             if(err){
-                return callback(err);
+                $.each(readGlobalQueue,function(i,v){
+                    if(v && v.fPath == filePath){
+                        return v.cb(err);
+                    }
+                })
+                //return callback(err);
             }
             if(!res){
-                return callback(new Error('文件不存在'));
+                $.each(readGlobalQueue,function(i,v){
+                    if(v && v.fPath == filePath){
+                        return v.cb(new Error('文件不存在'));
+                    }
+                })
+                //return callback(new Error('文件不存在'));
             }
-            stat(filePath,function(err,fileInfo){
+            stat(filePath,function(err,fileInfo,dataType,optId,filePath){
                 if(err){
-                    return callback(err);
+                    $.each(readGlobalQueue,function(i,v){
+                        if(v && v.fPath == filePath){
+                            return v.cb(err);
+                        }
+                    })
+                    //return callback(err);
                 }
                 if(!fileInfo.isFile){
-                    return callback(new Error('该路径不是文件'));
+                    $.each(readGlobalQueue,function(i,v){
+                        if(v && v.fPath == filePath){
+                            return v.cb(new Error('该路径不是文件'));
+                        }
+                    })
+                    //return callback(new Error('该路径不是文件'));
                 }
                 uexFileMgr.cbReadFile = function(optId,dataType,data){
                     if(dataType != 0){
-                        callback(new Error('read file error'),data,
-                            dataType,optId);
+                        //callback(new Error('read file error'),data,dataType,optId);
+                        processReadGlobalQueue(new Error('read file error'),data,dataType,optId);
                     }
-                    callback(null,data,dataType,optId);
+                    //callback(null,data,dataType,optId);
+                    processReadGlobalQueue(null,data,dataType,optId);
                 };
-                open(filePath,1,function(err,data,dataType,optId){
+                readOpen(filePath,1,function(err,data,dataType,optId){
                     uexFileMgr.readFile(optId,length);
                     close(optId);
                 });
             });
-        });
+        },optId);
     }
     
     
@@ -6550,8 +6640,7 @@ appcan && appcan.define('file',function($,exports,module){
                 }
                 uexFileMgr.cbReadFile = function(optId,dataType,data){
                     if(dataType != 0){
-                        callback(new Error('read file error'),data,
-                            dataType,optId);
+                        callback(new Error('read file error'),data,dataType,optId);
                     }
                     callback(null,data,dataType,optId);
                 };
@@ -6591,7 +6680,23 @@ appcan && appcan.define('file',function($,exports,module){
         });
     }
 
-
+     /*
+        处理全局回调openwrite消息
+        @param string msg 传递过来的消息
+    
+    */
+    function processWriteGlobalQueue(err,data,dataType,optId){
+        if(writeGlobalQueue.length > 0){
+            $.each(writeGlobalQueue,function(i,v){
+                if(v && v.cb && appcan.isFunction(v.cb)){
+                    if(v.optId == optId){
+                        v.cb(err,data,dataType,optId,v.ct);
+                    }
+                }
+            });
+        }
+        return
+    }
 
     /*
     写文件
@@ -6614,14 +6719,14 @@ appcan && appcan.define('file',function($,exports,module){
             callback = content;
             content = '';
         }
-        open(filePath,2,function(err,data,dataType,optId){
+        writeOpen(filePath,2,function(err,data,dataType,optId,contents){
             if(err){
                 return callback(err);
             }
-            uexFileMgr.writeFile(optId,mode,content);
+            uexFileMgr.writeFile(optId,mode,contents);
             close(optId);
-            callback(null);
-        });
+            callback(null); 
+        },content);
     }
     
     /*
@@ -6733,6 +6838,94 @@ appcan && appcan.define('file',function($,exports,module){
             };
         }
         uexFileMgr.openFile(getOptionId(),filePath,mode);
+        //close(optId);
+    }
+    
+    /*
+           write调用打开流
+    @param String filePath 文件路径
+    @param String mode 打开方式
+
+    */
+    function writeOpen(filePath,mode,callback,content){
+        var argObj = null;
+        if(arguments.length === 1 && appcan.isPlainObject(filePath)){
+            argObj = filePath;
+            filePath = argObj.filePath;
+            mode = argObj.mode;
+            callback = argObj.callback;
+        }
+        if(appcan.isFunction(mode)){
+            callback = mode;
+            mode = 3;
+        }
+        mode = mode || 3;
+        if(!appcan.isString(filePath)){
+            return callback(new Error('文件路径不正确'));
+        }
+        var optId = getOptionId();
+        writeGlobalQueue.push({optId:optId,cb:callback,ct:content});
+        if(appcan.isFunction(callback)){
+            uexFileMgr.cbOpenFile = function(optId,dataType,data){
+                if(dataType != 2){
+                    //callback(new Error('open file error'),data,dataType,optId,content);
+                    processWriteGlobalQueue(new Error('open file error'),data,dataType,optId);
+                    return;
+                }
+                //callback(null,data,dataType,optId,content);
+                processWriteGlobalQueue(null,data,dataType,optId);
+            };
+        }
+        uexFileMgr.openFile(optId,filePath,mode);
+        
+        //close(optId);
+    }
+    
+    /*
+           write调用打开流
+    @param String filePath 文件路径
+    @param String mode 打开方式
+
+    */
+    function readOpen(filePath,mode,callback){
+        var argObj = null;
+        if(arguments.length === 1 && appcan.isPlainObject(filePath)){
+            argObj = filePath;
+            filePath = argObj.filePath;
+            mode = argObj.mode;
+            callback = argObj.callback;
+        }
+        if(appcan.isFunction(mode)){
+            callback = mode;
+            mode = 3;
+        }
+        mode = mode || 3;
+        if(!appcan.isString(filePath)){
+            return callback(new Error('文件路径不正确'));
+        }
+        var optId = null;
+        $.each(readGlobalQueue,function(i,v){
+            if(v.fPath && v.fPath == filePath){
+                optId = v.readOptId;
+            }
+        })
+        if(!optId){
+            optId = getOptionId();
+        }
+        if(appcan.isFunction(callback)){
+            readOpenGlobalQueue.push({optId:optId,cb:callback});
+            uexFileMgr.cbOpenFile = function(optId,dataType,data){
+                if(dataType != 2){
+                    //callback(new Error('open file error'),data,dataType,optId,content);
+                    processReadOpenGlobalQueue(new Error('open file error'),data,dataType,optId);
+                    return;
+                }
+                //callback(null,data,dataType,optId,content);
+                processReadOpenGlobalQueue(null,data,dataType,optId);
+            };
+        }
+        uexFileMgr.openFile(optId,filePath,mode);
+        
         //close(optId);
     }
     
@@ -6990,8 +7183,7 @@ appcan && appcan.define('file',function($,exports,module){
         appendSecure:appendSecure
     };
 
-});
-;/*
+});;/*
     author:dushaobin
     email:shaobin.du@3g2win.com
     description:扩展zepto到appcandom 对象上
@@ -9469,6 +9661,9 @@ window.appcan && appcan.define('frame',function($,exports,module){
                                     if(err == null){
                                         var tempSucc = opts.success;
                                         if (typeof(tempSucc) == 'function') {
+                                            if(typeof(data)=='string'&&opts.dataType.toLowerCase()=='json'){
+                                                data=JSON.parse(data);
+                                            }
                                             opts.success(data,"success",200,null,null);
                                         }
                                     }else{
@@ -9621,6 +9816,9 @@ window.appcan && appcan.define('frame',function($,exports,module){
             var filename = fileUrl;
             var localFilePath = baseFilePath + filename + '.txt';
             var saveData = {};
+            if((typeof(fileData)=="object")&&(Object.prototype.toString.call(fileData).toLowerCase()=="[object object]")&&!fileData.length){
+                fileData=JSON.stringify(fileData);    
+            }
             var now = new Date().getTime();
             var data=fileData;
             writeFileParams ={
@@ -9726,12 +9924,13 @@ window.appcan && appcan.define('frame',function($,exports,module){
 
 appcan.define('ajax', function($, exports, module){
     module.exports = appcan.request.ajax;
-});;/**
+});
+;/**
  *
  */
 appcan.define("icache", function($, exports, module) {
     var opid = 1000;
-    var CACHE_PATH = "wgt://icache/";
+    var CACHE_PATH = "box://icache/";
     function iCache(option) {
         var self = this;
         appcan.extend(this, appcan.eventEmitter);
@@ -9759,7 +9958,7 @@ appcan.define("icache", function($, exports, module) {
                 status : status
             });
         }
-        uexFileMgr.getFileRealPath("wgt://");
+        uexFileMgr.getFileRealPath("box://");
         self.on("NEXT_SESSION", self._next);
 
     }

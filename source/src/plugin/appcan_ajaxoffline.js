@@ -67,6 +67,9 @@
                                     if(err == null){
                                         var tempSucc = opts.success;
                                         if (typeof(tempSucc) == 'function') {
+                                            if(typeof(data)=='string'&&opts.dataType.toLowerCase()=='json'){
+                                                data=JSON.parse(data);
+                                            }
                                             opts.success(data,"success",200,null,null);
                                         }
                                     }else{
@@ -219,6 +222,9 @@
             var filename = fileUrl;
             var localFilePath = baseFilePath + filename + '.txt';
             var saveData = {};
+            if((typeof(fileData)=="object")&&(Object.prototype.toString.call(fileData).toLowerCase()=="[object object]")&&!fileData.length){
+                fileData=JSON.stringify(fileData);    
+            }
             var now = new Date().getTime();
             var data=fileData;
             writeFileParams ={

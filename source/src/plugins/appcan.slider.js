@@ -97,6 +97,14 @@ appcan.define("slider", function($, exports, module) {
             }
             if(self.option.hasCircle){
                 self.circle.html(self.option.data[self.option.index+1].label);
+                 var name = $("div[name=labContent]");
+                    for(var i = 0;i < name.length;i++){
+                        if(i == self.option.index){
+                            name[i].style.cssText= 'margin-right : .5em;float: left;padding: 0.25em;background-color: #ff8a00;border-radius: 50%;';
+                        }else{
+                            name[i].style.cssText = 'margin-right : .5em;float: left;padding: 0.25em;background-color: #cfc1b0;border-radius: 50%;';
+                        }
+                    }
             }
         },
         drag:function(d){
@@ -164,16 +172,20 @@ appcan.define("slider", function($, exports, module) {
             
             self._moveTo(self.option.index,false);
             self.ele.off("swipeMoveLeft").on("swipeMoveLeft",function(evt){
+                 if(self.option.index<self.option.itemCount){
                     if(self.timer) {
                         clearInterval(self.timer);
                     }
-                    self.drag(-evt._args.dx);          
+                    self.drag(-evt._args.dx);      
+                    }    
             });
             self.ele.off("swipeMoveRight").on("swipeMoveRight",function(evt){
+                if(self.option.index>=0){
                     if(self.timer) {
                         clearInterval(self.timer);
                     }
                     self.drag(evt._args.dx);  
+                }
             });
             
             //结束的时候
@@ -185,36 +197,16 @@ appcan.define("slider", function($, exports, module) {
                 self.emit("clickItem",self,self.option.index,data[self.option.index+1]);
             });
             self.ele.off("swipeLeft").on("swipeLeft",function(evt){
-                    var name = $("div[name=labContent]");
-                    var index = self.option.index + 1;
-                    if(index >= self.option.itemCount){
-                        index = 0;
-                    }
-                    for(var i = 0;i < name.length;i++){
-                        if(i == index){
-                            name[i].style.cssText= 'margin-right : .5em;float: left;padding: 0.25em;background-color: #ff8a00;border-radius: 50%;';
-                        }else{
-                            name[i].style.cssText = 'margin-right : .5em;float: left;padding: 0.25em;background-color: #cfc1b0;border-radius: 50%;';
-                        }
-                    }
+                if(self.option.index<self.option.itemCount){
                     self._moveTo(++self.option.index);
-                    self.autoMove(self.option.auto);             
+                    self.autoMove(self.option.auto);
+                    }            
             });
             self.ele.off("swipeRight").on("swipeRight",function(evt){
-                var name = $("div[name=labContent]");
-                    var index = self.option.index - 1;
-                    if(index < 0){
-                        index = self.option.itemCount - 1;
-                    }
-                    for(var i = 0;i < name.length;i++){
-                        if(i == index){
-                            name[i].style.cssText= 'margin-right : .5em;float: left;padding: 0.25em;background-color: #ff8a00;border-radius: 50%;';
-                        }else{
-                            name[i].style.cssText = 'margin-right : .5em;float: left;padding: 0.25em;background-color: #cfc1b0;border-radius: 50%;';
-                        }
-                    }
+                if(self.option.index>=0){
                     self._moveTo(--self.option.index);
                     self.autoMove(self.option.auto);
+                }
             });
             
             self.ele.off("swipeUp").on("swipeUp",function(evt){

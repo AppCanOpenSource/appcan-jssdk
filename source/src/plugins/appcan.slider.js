@@ -3,7 +3,7 @@ appcan.define("slider", function($, exports, module) {
     <span class="uabs"><%=data.label%></span>\
     </div>';
     var model_Conitem='<div class="slider-item1 ub-fh ub-fv" id="<%=option.index%>">\
-     <div style="font-size:<%=option.size%>px;white-space:normal;position:absolute;left:0;top:0;word-wrap: break-word;" ><%=data.note%></div>\
+     <div id="note" style="white-space:normal;word-wrap:break-word;width:100%;height:100%;"><%=data.note%></div>\
      </div>';
     var itemTmp = appcan.view.template(model_item);
     var ConitemTmp=appcan.view.template(model_Conitem);
@@ -56,6 +56,9 @@ appcan.define("slider", function($, exports, module) {
                     data : data,
                     option : self.option
                 }));
+          self.container.css('font-size','16px');
+           var Hnote=item.find('div[id="note"]');   
+             Hnote.css(data.style);
             }else{
             var item = $(itemTmp({
                     data : data,

@@ -1021,7 +1021,7 @@ window.appcan && appcan.define('window',function($,exports,module){
                 };
             }
         }else{
-            content = JSON.parse(conent);
+            content = JSON.parse(content);
             if(!content.content){
                 content={
                     content:content

@@ -19,8 +19,8 @@ appcan.define("slider", function($, exports, module) {
             dir:'hor',
             hasIndicator:true,
             hasContent:false,
-            canDown:true,
-            hasCircle:true,
+            canDown:false,
+            hasCircle:false,
             hasLabel:false,
             aspectRatio:0,
             index:0,
@@ -154,9 +154,9 @@ appcan.define("slider", function($, exports, module) {
                     }
                 }
                 self.Circle.append(self.circle);
-                if(self.option.site=='Right'){
+                if(self.option.site=='right'){
                 dian[0].style.cssText='margin-top:0.75em;margin-left:75%;';
-                }else if(self.option.site=='Left'){
+                }else if(self.option.site=='left'){
                     dian[0].style.cssText='margin-top:0.75em;margin-left:0;';
                 }
                 dian.css("width",self.option.itemCount+"em");

@@ -3,7 +3,7 @@ appcan.define("slider", function($, exports, module) {
     <span class="uabs"><%=data.label%></span>\
     </div>';
     var model_Conitem='<div class="slider-item1 ub-fh ub-fv" id="<%=option.index%>">\
-     <div style="font-size:<%=option.size%>px;white-space:normal;position:absolute;left:0;top:0;word-wrap: break-word;" ><%=data.note%></div>\
+     <div id="note" style="white-space:normal;word-wrap:break-word;width:100%;height:100%;"><%=data.note%></div>\
      </div>';
     var itemTmp = appcan.view.template(model_item);
     var ConitemTmp=appcan.view.template(model_Conitem);
@@ -19,8 +19,8 @@ appcan.define("slider", function($, exports, module) {
             dir:'hor',
             hasIndicator:true,
             hasContent:false,
-            canDown:true,
-            hasCircle:true,
+            canDown:false,
+            hasCircle:false,
             hasLabel:false,
             aspectRatio:0,
             index:0,
@@ -56,6 +56,9 @@ appcan.define("slider", function($, exports, module) {
                     data : data,
                     option : self.option
                 }));
+          self.container.css('font-size','16px');
+           var Hnote=item.find('div[id="note"]');   
+             Hnote.css(data.style);
             }else{
             var item = $(itemTmp({
                     data : data,
@@ -94,6 +97,14 @@ appcan.define("slider", function($, exports, module) {
             }
             if(self.option.hasCircle){
                 self.circle.html(self.option.data[self.option.index+1].label);
+                 var name = $("div[name=labContent]");
+                    for(var i = 0;i < name.length;i++){
+                        if(i == self.option.index){
+                            name[i].style.cssText= 'margin-right : .5em;float: left;padding: 0.25em;background-color: #ff8a00;border-radius: 50%;';
+                        }else{
+                            name[i].style.cssText = 'margin-right : .5em;float: left;padding: 0.25em;background-color: #cfc1b0;border-radius: 50%;';
+                        }
+                    }
             }
         },
         drag:function(d){
@@ -143,9 +154,9 @@ appcan.define("slider", function($, exports, module) {
                     }
                 }
                 self.Circle.append(self.circle);
-                if(self.option.site=='Right'){
+                if(self.option.site=='right'){
                 dian[0].style.cssText='margin-top:0.75em;margin-left:75%;';
-                }else if(self.option.site=='Left'){
+                }else if(self.option.site=='left'){
                     dian[0].style.cssText='margin-top:0.75em;margin-left:0;';
                 }
                 dian.css("width",self.option.itemCount+"em");
@@ -161,16 +172,20 @@ appcan.define("slider", function($, exports, module) {
             
             self._moveTo(self.option.index,false);
             self.ele.off("swipeMoveLeft").on("swipeMoveLeft",function(evt){
+                 if(self.option.index<self.option.itemCount){
                     if(self.timer) {
                         clearInterval(self.timer);
                     }
-                    self.drag(-evt._args.dx);          
+                    self.drag(-evt._args.dx);      
+                    }    
             });
             self.ele.off("swipeMoveRight").on("swipeMoveRight",function(evt){
+                if(self.option.index>=0){
                     if(self.timer) {
                         clearInterval(self.timer);
                     }
                     self.drag(evt._args.dx);  
+                }
             });
             
             //结束的时候
@@ -182,36 +197,16 @@ appcan.define("slider", function($, exports, module) {
                 self.emit("clickItem",self,self.option.index,data[self.option.index+1]);
             });
             self.ele.off("swipeLeft").on("swipeLeft",function(evt){
-                    var name = $("div[name=labContent]");
-                    var index = self.option.index + 1;
-                    if(index >= self.option.itemCount){
-                        index = 0;
-                    }
-                    for(var i = 0;i < name.length;i++){
-                        if(i == index){
-                            name[i].style.cssText= 'margin-right : .5em;float: left;padding: 0.25em;background-color: #ff8a00;border-radius: 50%;';
-                        }else{
-                            name[i].style.cssText = 'margin-right : .5em;float: left;padding: 0.25em;background-color: #cfc1b0;border-radius: 50%;';
-                        }
-                    }
+                if(self.option.index<self.option.itemCount){
                     self._moveTo(++self.option.index);
-                    self.autoMove(self.option.auto);             
+                    self.autoMove(self.option.auto);
+                    }            
             });
             self.ele.off("swipeRight").on("swipeRight",function(evt){
-                var name = $("div[name=labContent]");
-                    var index = self.option.index - 1;
-                    if(index < 0){
-                        index = self.option.itemCount - 1;
-                    }
-                    for(var i = 0;i < name.length;i++){
-                        if(i == index){
-                            name[i].style.cssText= 'margin-right : .5em;float: left;padding: 0.25em;background-color: #ff8a00;border-radius: 50%;';
-                        }else{
-                            name[i].style.cssText = 'margin-right : .5em;float: left;padding: 0.25em;background-color: #cfc1b0;border-radius: 50%;';
-                        }
-                    }
+                if(self.option.index>=0){
                     self._moveTo(--self.option.index);
                     self.autoMove(self.option.auto);
+                }
             });
             
             self.ele.off("swipeUp").on("swipeUp",function(evt){

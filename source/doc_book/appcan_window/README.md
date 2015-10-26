@@ -184,13 +184,12 @@ appcan是多窗口的，该模块封装了关于窗口的基础操作
 ###appcan.window.setBounce(bounceType,downEndCall,upEndCall,color,imgSettings)
 设置上下弹动效果     
 `bonceType`:弹动的类型   
-> 1. `0`: 无任何效果
-> 2. `1`: 颜色弹动效果
-> 3. `2`: 设置图片弹动
+> 1. `0`: 顶部弹动
+> 2. `1`: 底部弹动
 
 `startPullCall`:开始滑动时触发回调       
-`downEndCall`:当弹动类型设置为下边界弹动时，如果页面到了下边界则会触发该回调    
-`upEndCall`:当弹动类型设置为上边界弹动时，如果页面到了上边界则会触发该回调   
+`downEndCall`:滑动到弹动边界时触发回调    
+`upEndCall`:滑动事件结束时触发该回调  
 `color`:如果超过了该边界显示的背景颜色    
 `imgSettings`:如果超过了该边界，并且想要设置显示的内容包括图片文字则设置该参数   
 
@@ -708,7 +707,7 @@ appcan是多窗口的，该模块封装了关于窗口的基础操作
 `content`:提示框中显示的内容    
 `buttons`:提示框显示的按钮，多个按钮可以为数组形式    
 `callback(err,data,dataType,optId)`:当点击了其中一个按钮后的回调，
-第一个参数是`Error`对象如果为空则表示没有错误，否则表示操作出错了，`data`表示返回的操作结果{num:'按钮的索引值',val:'输入框的值'},`dataType`操作结果的数据类型，`optId`该操作id   
+第一个参数是`Error`对象如果为空则表示没有错误，否则表示操作出错了，`data`表示返回的操作结果{num:'按钮的索引值',value:'输入框的值'},`dataType`操作结果的数据类型，`optId`该操作id   
 
 > 参数还可以以对象的形式传参：
 

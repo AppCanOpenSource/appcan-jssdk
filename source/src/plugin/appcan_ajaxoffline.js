@@ -67,7 +67,7 @@
                                     if(err == null){
                                         var tempSucc = opts.success;
                                         if (typeof(tempSucc) == 'function') {
-                                            if(typeof(data)=='string'&&opts.dataType.toLowerCase()=='json'){
+                                            if(typeof(data)=='string'&& opts.dataType &&opts.dataType.toLowerCase()=='json'){
                                                 data=JSON.parse(data);
                                             }
                                             opts.success(data,"success",200,null,null);

@@ -998,8 +998,8 @@ window.appcan && appcan.define('window',function($,exports,module){
         flag = flag || 0;
         indexSelected = parseInt(indexSelected,10);
         indexSelected = isNaN(indexSelected)? 0 : indexSelected;
-        width = width || 0;
-        height = height || 0;
+        width = width || '';
+        height = height || '';
         change = change || function(){};
 		
 		try{
@@ -1021,7 +1021,7 @@ window.appcan && appcan.define('window',function($,exports,module){
                 };
             }
         }else{
-            content = JSON.parse(conent);
+            content = JSON.parse(content);
             if(!content.content){
                 content={
                     content:content

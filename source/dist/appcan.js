@@ -5399,12 +5399,12 @@ appcan && appcan.define('detect',function(ac,exports,module){
 
     //判断是否支持css3d,todo：避免多次创建
     var supports3d = function() {
-		var div = document.createElement('div'),
-			ret = false,
-			properties = ['perspectiveProperty', 'WebkitPerspective'];
-		for (var i = properties.length - 1; i >= 0; i--){
-			ret = ret ? ret : div.style[properties[i]] !== undefined;
-		}
+    var div = document.createElement('div'),
+      ret = false,
+      properties = ['perspectiveProperty', 'WebkitPerspective'];
+    for (var i = properties.length - 1; i >= 0; i--){
+      ret = ret ? ret : div.style[properties[i]] !== undefined;
+    }
 
         //如果webkit 3d transforms被禁用,虽然语法上检查没问题，但是还是不支持
         if (ret){
@@ -5420,7 +5420,7 @@ appcan && appcan.define('detect',function(ac,exports,module){
             div.parentNode.removeChild(div);
         }
         return ret;
-	};
+  };
 
     //事件的支持度检测
     var events = {
@@ -8261,25 +8261,25 @@ window.appcan && appcan.define('window',function($,exports,module){
             height = argObj['height'];
             type = argObj['type'] || 0;
             animDuration = argObj['animDuration'];
-			extraInfo = argObj['extraInfo'];
+      extraInfo = argObj['extraInfo'];
             data = argObj['data'];
         }
         dataType = dataType || 0;
         aniId = aniId || 0;
         type = type || 0;
         animDuration = animDuration || 300;
-		
-		try{
-			extraInfo = appcan.isString(extraInfo) ? extraInfo : JSON.stringify(extraInfo);
-			extraInfo = JSON.parse(extraInfo);
-			if(!extraInfo.extraInfo){
-				extraInfo = {extraInfo:extraInfo};
-			}
-			extraInfo = JSON.stringify(extraInfo);
-		}catch(e){
-			extraInfo = extraInfo || '';
-		}
-		
+    
+    try{
+      extraInfo = appcan.isString(extraInfo) ? extraInfo : JSON.stringify(extraInfo);
+      extraInfo = JSON.parse(extraInfo);
+      if(!extraInfo.extraInfo){
+        extraInfo = {extraInfo:extraInfo};
+      }
+      extraInfo = JSON.stringify(extraInfo);
+    }catch(e){
+      extraInfo = extraInfo || '';
+    }
+    
         //打开新窗口
         uexWindow.open(name,dataType,data,aniId,width,height,type,animDuration,extraInfo);
     }
@@ -8429,9 +8429,9 @@ window.appcan && appcan.define('window',function($,exports,module){
             
         }
     }
-	
-	
-	var bounceStateQueue =[];
+  
+  
+  var bounceStateQueue =[];
             /*
         处理回调获取弹动状态
         @param string msg 传递过来的消息
@@ -8696,7 +8696,7 @@ window.appcan && appcan.define('window',function($,exports,module){
             url = argObj['url'];
             top = argObj['top'];
             left = argObj['left'];
-			extraInfo = argObj['extraInfo'];
+      extraInfo = argObj['extraInfo'];
             name = argObj['name'];
         }
         top = top || 0;
@@ -8711,8 +8711,8 @@ window.appcan && appcan.define('window',function($,exports,module){
         left = isNaN(left)?ele.offset().left:left;//默认使用元素本身的left
         name = name?name:id;
         
-		extraInfo = extraInfo || '';
-		
+    extraInfo = extraInfo || '';
+    
         //fixed xiaomi 2s bug
         fontSize = parseInt(fontSize,10);
         fontSize = isNaN(fontSize)? 0 : fontSize;
@@ -8763,7 +8763,7 @@ window.appcan && appcan.define('window',function($,exports,module){
             fontSize = argObj['fontSize'];
             type = argObj['type'];
             bottomMargin = argObj['bottomMargin'];
-			extraInfo = argObj['extraInfo'];
+      extraInfo = argObj['extraInfo'];
         }
         dataType = dataType || 0;
         left = left || 0;
@@ -8777,18 +8777,18 @@ window.appcan && appcan.define('window',function($,exports,module){
         //fixed xiaomi 2s bug
         fontSize = parseInt(fontSize,10);
         fontSize = isNaN(fontSize)?0:fontSize;
-		
-		try{
-			extraInfo = appcan.isString(extraInfo) ? extraInfo : JSON.stringify(extraInfo);
-			extraInfo = JSON.parse(extraInfo);
-			if(!extraInfo.extraInfo){
-				extraInfo = {extraInfo:extraInfo};
-			}
-			extraInfo = JSON.stringify(extraInfo);
-		}catch(e){
-			extraInfo = extraInfo || '';
-		}
-		
+    
+    try{
+      extraInfo = appcan.isString(extraInfo) ? extraInfo : JSON.stringify(extraInfo);
+      extraInfo = JSON.parse(extraInfo);
+      if(!extraInfo.extraInfo){
+        extraInfo = {extraInfo:extraInfo};
+      }
+      extraInfo = JSON.stringify(extraInfo);
+    }catch(e){
+      extraInfo = extraInfo || '';
+    }
+    
         //fixed ios bug
         if(uexWidgetOne.platformName && uexWidgetOne.platformName.toLowerCase().indexOf('ios') > -1){
             var args = ['"'+name+'"',dataType,'"'+url+'"','"'+data+'"',left,top,width,height,fontSize,type,bottomMargin,"'"+extraInfo+"'"];
@@ -9166,7 +9166,7 @@ window.appcan && appcan.define('window',function($,exports,module){
             left = popName['left'];
             dataType = popName['dataType'];
             content = popName['content'];
-			extraInfo = popName['extraInfo']
+      extraInfo = popName['extraInfo']
             popName = popName['popName'];
         }
         dataType = dataType || 0;
@@ -9176,17 +9176,17 @@ window.appcan && appcan.define('window',function($,exports,module){
         width = width || 0;
         height = height || 0;
         change = change || function(){};
-		
-		try{
-			extraInfo = appcan.isString(extraInfo) ? extraInfo : JSON.stringify(extraInfo);
-			extraInfo = JSON.parse(extraInfo);
-			if(!extraInfo.extraInfo){
-				extraInfo = {extraInfo:extraInfo};
-			}
-			extraInfo = JSON.stringify(extraInfo);
-		}catch(e){
-			extraInfo = extraInfo || '';
-		}
+    
+    try{
+      extraInfo = appcan.isString(extraInfo) ? extraInfo : JSON.stringify(extraInfo);
+      extraInfo = JSON.parse(extraInfo);
+      if(!extraInfo.extraInfo){
+        extraInfo = {extraInfo:extraInfo};
+      }
+      extraInfo = JSON.stringify(extraInfo);
+    }catch(e){
+      extraInfo = extraInfo || '';
+    }
         
         //fixed android 如果少任何一个key就会crash bug
         if(!appcan.isString(content)){
@@ -9515,7 +9515,7 @@ window.appcan && appcan.define('window',function($,exports,module){
         stateChange:onStateChange,
         swipeLeft:onSwipeLeft,
         swipeRight:onSwipeRight,
-		getBounceStatus:getBounceStatus,
+    getBounceStatus:getBounceStatus,
         setMultilPopoverFlippingEnbaled:setMultilPopoverFlippingEnbaled
         
     };
@@ -9550,7 +9550,7 @@ window.appcan && appcan.define('frame',function($,exports,module){
         openMulti:appWin.openMultiPopover,
         closeMulti:appWin.closeMultiPopover,
         setBounce:appWin.setBounce,
-		getBounceStatus:appWin.getBounceStatus,
+    getBounceStatus:appWin.getBounceStatus,
         resetBounce:appWin.resetBounceView,
         open:function(id,url,left,top,name,index,change,extraInfo){
             var argObj = null;

@@ -2,7 +2,7 @@ appcan.define("slider", function($, exports, module) {
     var model_item = '<div class="slider-item ub-fh ub-fv ub-img1 <%=data.id%>" style="background-image:url(<%=data.img%>)">\
     <span class="uabs"><%=data.label%></span>\
     </div>';
-    var model_Conitem='<div class="slider-item1 ub-fh ub-fv" id="<%=option.index%>">\
+    var model_Conitem='<div class="slider-item1 ub-fh ub-fv" style="position:relative;display:inline-block;font-size:1em;" id="<%=option.index%>">\
      <div id="note" style="white-space:normal;word-wrap:break-word;width:100%;height:100%;"><%=data.note%></div>\
      </div>';
     var itemTmp = appcan.view.template(model_item);
@@ -97,7 +97,7 @@ appcan.define("slider", function($, exports, module) {
             }
             if(self.option.hasCircle){
                 self.circle.html(self.option.data[self.option.index+1].label);
-                 var name = $("div[name=labContent]");
+                 var name = self.Circle.find('div[name="labContent"]');
                     for(var i = 0;i < name.length;i++){
                         if(i == self.option.index){
                             name[i].style.cssText= 'margin-right : .5em;float: left;padding: 0.25em;background-color: #ff8a00;border-radius: 50%;';

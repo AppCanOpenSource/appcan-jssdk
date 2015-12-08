@@ -96,10 +96,13 @@ appcan.define("slider", function($, exports, module) {
                 self.label.html(self.option.data[self.option.index+1].label);
             }
             if(self.option.hasCircle){
-                self.circle.html(self.option.data[self.option.index+1].label);
                  var name = self.Circle.find('div[name="labContent"]');
+                 var index = self.option.index;
+                 if(index > self.option.itemCount){
+                    index = 0;
+                 }
                     for(var i = 0;i < name.length;i++){
-                        if(i == self.option.index){
+                        if(i == index){
                             name[i].style.cssText= 'margin-right : .5em;float: left;padding: 0.25em;background-color: #ff8a00;border-radius: 50%;';
                         }else{
                             name[i].style.cssText = 'margin-right : .5em;float: left;padding: 0.25em;background-color: #cfc1b0;border-radius: 50%;';
@@ -142,7 +145,6 @@ appcan.define("slider", function($, exports, module) {
             }
             if(self.option.hasCircle){
                 self.Circle = $('<div class="label1" style="background-color:rgba(152, 139, 123, 0.5);height:1.5em;width: 100%;position: absolute;left: 0px;bottom: 0px;"></div>');
-                self.circle =self.circle || $('<div class="ulev-1 ut-s label sc-text-hint uinn-l1"></div>');
                 var dian = $('<div class="labelzan" style="margin:0 auto;top :.6em;right: .2em;"></div>');
                 var zamcon = $('<div class="labelcon1" name="labContent" style="margin-right : .5em;float: left;padding: 0.25em;background-color: #ff8a00;border-radius: 50%;"></div>');
                 var zamcon1 = $('<div class="labelcon" name="labContent"></div>');
@@ -153,7 +155,6 @@ appcan.define("slider", function($, exports, module) {
                         dian.append('<div class="labelcon" name="labContent" style="margin-right : .5em;float: left;padding: 0.25em;background-color: #cfc1b0;border-radius: 50%;"></div>');
                     }
                 }
-                self.Circle.append(self.circle);
                 if(self.option.site=='right'){
                 dian[0].style.cssText='margin-top:0.75em;margin-left:75%;';
                 }else if(self.option.site=='left'){

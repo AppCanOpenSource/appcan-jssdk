@@ -350,6 +350,7 @@ appcan && appcan.define('request',function($,exports,module){
             processProgress.apply(null,resArg);
         };
         xhr.onData = function(){
+            clearTimeout(abortTimeout);
             var resArg = [xhr];
             for(var i=0,len=arguments.length;i<len;i++){
                 resArg.push(arguments[i]);
@@ -406,6 +407,12 @@ appcan && appcan.define('request',function($,exports,module){
                 xhr.setBody(httpId,settings.data ? settings.data : null);
             }
         }
+        //兼容前端中断请求返回错误提示
+        if (settings.timeout > 0) abortTimeout = setTimeout(function(){
+            xhr.onData = empty
+            xhr.close(httpId)
+            ajaxError(null, 'timeout',null, xhr, settings, deferred)
+          }, settings.timeout)
         xhr.send(httpId);
         return xhr;
   }

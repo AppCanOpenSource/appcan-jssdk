@@ -5399,12 +5399,12 @@ appcan && appcan.define('detect',function(ac,exports,module){
 
     //判断是否支持css3d,todo：避免多次创建
     var supports3d = function() {
-    var div = document.createElement('div'),
-      ret = false,
-      properties = ['perspectiveProperty', 'WebkitPerspective'];
-    for (var i = properties.length - 1; i >= 0; i--){
-      ret = ret ? ret : div.style[properties[i]] !== undefined;
-    }
+		var div = document.createElement('div'),
+			ret = false,
+			properties = ['perspectiveProperty', 'WebkitPerspective'];
+		for (var i = properties.length - 1; i >= 0; i--){
+			ret = ret ? ret : div.style[properties[i]] !== undefined;
+		}
 
         //如果webkit 3d transforms被禁用,虽然语法上检查没问题，但是还是不支持
         if (ret){
@@ -5420,7 +5420,7 @@ appcan && appcan.define('detect',function(ac,exports,module){
             div.parentNode.removeChild(div);
         }
         return ret;
-  };
+	};
 
     //事件的支持度检测
     var events = {
@@ -7555,6 +7555,7 @@ appcan && appcan.define('request',function($,exports,module){
             processProgress.apply(null,resArg);
         };
         xhr.onData = function(){
+            clearTimeout(abortTimeout);
             var resArg = [xhr];
             for(var i=0,len=arguments.length;i<len;i++){
                 resArg.push(arguments[i]);
@@ -7611,6 +7612,12 @@ appcan && appcan.define('request',function($,exports,module){
                 xhr.setBody(httpId,settings.data ? settings.data : null);
             }
         }
+        //兼容前端中断请求返回错误提示
+        if (settings.timeout > 0) abortTimeout = setTimeout(function(){
+            xhr.onData = empty
+            xhr.close(httpId)
+            ajaxError(null, 'timeout',null, xhr, settings, deferred)
+          }, settings.timeout)
         xhr.send(httpId);
         return xhr;
   }
@@ -8195,14 +8202,22 @@ window.appcan && appcan.define('window',function($,exports,module){
     
     /*
         捕获android实体键
-        @param String id 实体键的id
-        @param Function callback 当点击时出发的回调函数
+        @param Number id 要拦截的键值,0-返回键，1-菜单键
+        @param Number enable 是否拦截,0-不拦截，1-拦截  
+        @param Function callback 当点击时触发的回调函数
     
     
     */
-    function monitorKey(id,callback){
+    function monitorKey(id,enable,callback){
+        var argObj = null;
+        if(arguments.length === 1 && appcan.isPlainObject(id)){
+            argObj = id;
+            id = argObj['id'];
+            enable = argObj['enable'] ;
+            callback = argObj['callback'] || function(){};
+        }
         keyFuncMapper[id] = callback;
-        uexWindow.setReportKey(id);
+        uexWindow.setReportKey(id,enable);
         uexWindow.onKeyPressed = function(keyCode){
             keyFuncMapper[keyCode] && keyFuncMapper[keyCode](keyCode);    
         }
@@ -8261,25 +8276,25 @@ window.appcan && appcan.define('window',function($,exports,module){
             height = argObj['height'];
             type = argObj['type'] || 0;
             animDuration = argObj['animDuration'];
-      extraInfo = argObj['extraInfo'];
+			extraInfo = argObj['extraInfo'];
             data = argObj['data'];
         }
         dataType = dataType || 0;
         aniId = aniId || 0;
         type = type || 0;
         animDuration = animDuration || 300;
-    
-    try{
-      extraInfo = appcan.isString(extraInfo) ? extraInfo : JSON.stringify(extraInfo);
-      extraInfo = JSON.parse(extraInfo);
-      if(!extraInfo.extraInfo){
-        extraInfo = {extraInfo:extraInfo};
-      }
-      extraInfo = JSON.stringify(extraInfo);
-    }catch(e){
-      extraInfo = extraInfo || '';
-    }
-    
+		
+		try{
+			extraInfo = appcan.isString(extraInfo) ? extraInfo : JSON.stringify(extraInfo);
+			extraInfo = JSON.parse(extraInfo);
+			if(!extraInfo.extraInfo){
+				extraInfo = {extraInfo:extraInfo};
+			}
+			extraInfo = JSON.stringify(extraInfo);
+		}catch(e){
+			extraInfo = extraInfo || '';
+		}
+		
         //打开新窗口
         uexWindow.open(name,dataType,data,aniId,width,height,type,animDuration,extraInfo);
     }
@@ -8429,9 +8444,9 @@ window.appcan && appcan.define('window',function($,exports,module){
             
         }
     }
-  
-  
-  var bounceStateQueue =[];
+	
+	
+	var bounceStateQueue =[];
             /*
         处理回调获取弹动状态
         @param string msg 传递过来的消息
@@ -8659,7 +8674,211 @@ window.appcan && appcan.define('window',function($,exports,module){
             uexWindow.onAnimationFinish = callback;
         }
     }
+
+    /*
+    浮动窗口透明度动画
+    @param Number alpha 相对于当前alpha的值，0.0到1.0的float型数据
+    @param Function callback 动画完成的回调函数
+    @param Number duration 动画的时间
+    */
+
+    function alphaAnim(alpha,callback,duration){
+        var argObj = null;
+        if(arguments.length === 1 && appcan.isPlainObject(alpha)){
+            argObj = alpha;
+            alpha = argObj['alpha'] || 0.5;
+            callback = argObj['callback'];
+            duration = argObj['duration'] || 250;
+        }
+        alpha = argObj['alpha'] || 0.5;
+        duration = duration || 250;
+        uexWindow.beginAnimition();
+
+        uexWindow.setAnimitionDuration(duration);
+        uexWindow.setAnimitionRepeatCount('0');
+        uexWindow.setAnimitionAutoReverse('0');
+        
+        uexWindow.makeAlpha(alpha);
+        
+        uexWindow.commitAnimition();
+        if(appcan.isFunction(callback)) {
+            uexWindow.onAnimationFinish = callback;
+        }
+    }
     
+    /*
+    浮动窗口伸缩动画
+    @param Number x 相对于当前大小的x轴方向上的放大倍率，大于0的float型数据
+    @param Number y 相对于当前大小的y轴方向上的放大倍率，大于0的float型数据
+    @param Number z 相对于当前大小的z轴方向上的放大倍率，大于0的float型数据
+    @param Number duration 动画的移动时间
+    @param Function callback 动画完成的回调函数
+    */
+
+    function scaleAnim(x,y,z,callback,duration){
+        var argObj = null;
+        if(arguments.length === 1 && appcan.isPlainObject(x)){
+            argObj = x;
+            x = argObj['x'] || 1;
+            y = argObj['y'] || 1;
+            z = argObj['z'] || 1;
+            duration = argObj['duration'] || 250;
+            callback = argObj['callback'];
+        }
+        
+        x = x || 1;
+        y = y || 1;
+        z = z || 1;
+        duration = duration || 250;
+        uexWindow.beginAnimition();
+
+        uexWindow.setAnimitionDuration(duration);
+        uexWindow.setAnimitionRepeatCount('0');
+        uexWindow.setAnimitionAutoReverse('0');
+        uexWindow.makeScale(x,y,z);
+        uexWindow.commitAnimition();
+        if(appcan.isFunction(callback)) {
+            uexWindow.onAnimationFinish = callback;
+        }
+    }
+    
+    /*
+                    浮动窗口旋转动画
+    @param Number degrees 相对于当前角度的旋转度数
+    @param Number x 是否绕X轴旋转。0为false，1为true
+    @param Number y 是否绕X轴旋转。0为false，1为true
+    @param Number z 是否绕X轴旋转。0为false，1为true
+    @param Number duration 动画的移动时间
+    @param Function callback 动画完成的回调函数
+    */
+
+    function rotateAnim(degrees,x,y,z,callback,duration){
+        var argObj = null;
+        if(arguments.length === 1 && appcan.isPlainObject(degrees)){
+            argObj = degrees;
+            degrees = argObj['degrees'];
+            x = argObj['x'] || 0 ;
+            y = argObj['y'] || 0  ;
+            z = argObj['z'] || 0  ;
+            duration = argObj['duration'] || 250;
+            callback = argObj['callback'];
+        }
+        
+        x = argObj['x'] || 0;
+        y = argObj['y'] || 0;
+        z = argObj['z'] || 0;
+        duration = duration || 250;
+        uexWindow.beginAnimition();
+        uexWindow.setAnimitionDuration(duration);
+        uexWindow.setAnimitionRepeatCount('0');
+        uexWindow.setAnimitionAutoReverse('0');
+        uexWindow.makeRotate(degrees, x, y, z);
+        uexWindow.commitAnimition();
+        if(appcan.isFunction(callback)) {
+            uexWindow.onAnimationFinish = callback;
+        }
+    }
+    
+    /*
+    浮动窗口自定义动画
+    @param Number left 距离左边界的位置
+    @param Number top 距离上边界的位置
+    @param Number scaleX 相对于当前大小的x轴方向上的放大倍率，大于0的float型数据
+    @param Number scaleY 相对于当前大小的y轴方向上的放大倍率，大于0的float型数据
+    @param Number scaleZ 相对于当前大小的z轴方向上的放大倍率，大于0的float型数据
+    @param Number degrees 相对于当前角度的旋转度数
+    @param Number rotateX 是否绕X轴旋转。0为false，1为true
+    @param Number rotateY 是否绕y轴旋转。0为false，1为true
+    @param Number rotateZ 是否绕z轴旋转。0为false，1为true
+    @param Number alpha 相对于当前alpha的值，0.0到1.0的float型数据
+    @param Number delay 延迟执行的时间(单位：毫秒)，默认为0
+    @param Number curve 动画曲线类型，默认为0，详见CONSTANT中Window AnimCurveType
+    @param Number repeatCount 动画重复次数，默认为0
+    @param Number isReverse 设置动画结束后自动恢复位置和状态：0-不恢复；1-恢复。默认为0
+    @param Function callback 动画完成的回调函数
+    @param Int duration 动画的移动时间
+
+    */
+ 
+    function customAnim(left,top,scaleX,scaleY,scaleZ,degrees,rotateX,rotateY,rotateZ,alpha,delay,curve,repeatCount,isReverse,callback,duration){
+        
+        var argObj = null;
+        if(arguments.length === 1 && appcan.isPlainObject(left)){
+            argObj = left;
+            
+            left = argObj['left'] || 0;
+            top = argObj['top'] || 0;
+            
+            scaleX = argObj['scaleX'] || 1;
+            scaleY = argObj['scaleY'] || 1;
+            scaleZ = argObj['scaleZ'] || 1;
+            
+            degrees = argObj['degrees'] || 0;
+            rotateX = argObj['rotateX'] || 0;
+            rotateY = argObj['rotateY'] || 0;
+            rotateZ = argObj['rotateZ'] || 0;
+            
+            alpha = argObj['alpha'] || 0;
+            
+            delay = argObj['delay'] || 0;
+            curve = argObj['curve'] || 0;
+            repeatCount = argObj['repeatCount'] || 0;
+            isReverse = argObj['isReverse'] || 0;
+            
+            callback = argObj['callback'];
+            duration = argObj['duration'] || 250;
+        }
+        
+        left = argObj['left'] || 0;
+        top = argObj['top'] || 0;
+        
+        scaleX = argObj['scaleX'] || 1;
+        scaleY = argObj['scaleY'] || 1;
+        scaleZ = argObj['scaleZ'] || 1;
+        
+        degrees = argObj['degrees'] || 0;
+        rotateX = argObj['rotateX'] || 0;
+        rotateY = argObj['rotateY'] || 0;
+        rotateZ = argObj['rotateZ'] || 0;
+        
+        alpha = argObj['alpha'] || 0;
+        
+        delay = argObj['delay'] || 0;
+        curve = argObj['curve'] || 0;
+        repeatCount = argObj['repeatCount'] || 0;
+        isReverse = argObj['isReverse'] || 0;
+        
+        duration = duration || 250;
+        
+        uexWindow.beginAnimition();
+        
+        if(delay){
+            uexWindow.setAnimitionDelay(delay);
+        }
+        uexWindow.setAnimitionDuration(duration);
+        uexWindow.setAnimitionCurve(curve);
+        uexWindow.setAnimitionRepeatCount(repeatCount);
+        uexWindow.setAnimitionAutoReverse(isReverse);
+        
+        if(Math.abs(left) + Math.abs(top)){
+            uexWindow.makeTranslation(left,top,'0');
+        }
+        if(!(scaleX== 1 && scaleY == 1 && scaleZ == 1)){
+            uexWindow.makeScale(scaleX,scaleY,scaleZ);
+        }
+        if(degrees && Math.abs(degrees)>0 && (parseInt(rotateX) + parseInt(rotateY) + parseInt(rotateZ) >0)){
+            uexWindow.makeRotate(degrees,rotateX,rotateY,rotateZ);
+        }
+        if(alpha){
+            uexWindow.makeAlpha(alpha);
+        }
+        
+        uexWindow.commitAnimition();
+        if(appcan.isFunction(callback)) {
+            uexWindow.onAnimationFinish = callback;
+        }
+    }
+
     /*
         
     
@@ -8696,7 +8915,7 @@ window.appcan && appcan.define('window',function($,exports,module){
             url = argObj['url'];
             top = argObj['top'];
             left = argObj['left'];
-      extraInfo = argObj['extraInfo'];
+			extraInfo = argObj['extraInfo'];
             name = argObj['name'];
         }
         top = top || 0;
@@ -8711,8 +8930,8 @@ window.appcan && appcan.define('window',function($,exports,module){
         left = isNaN(left)?ele.offset().left:left;//默认使用元素本身的left
         name = name?name:id;
         
-    extraInfo = extraInfo || '';
-    
+		extraInfo = extraInfo || '';
+		
         //fixed xiaomi 2s bug
         fontSize = parseInt(fontSize,10);
         fontSize = isNaN(fontSize)? 0 : fontSize;
@@ -8763,7 +8982,7 @@ window.appcan && appcan.define('window',function($,exports,module){
             fontSize = argObj['fontSize'];
             type = argObj['type'];
             bottomMargin = argObj['bottomMargin'];
-      extraInfo = argObj['extraInfo'];
+			extraInfo = argObj['extraInfo'];
         }
         dataType = dataType || 0;
         left = left || 0;
@@ -8777,18 +8996,18 @@ window.appcan && appcan.define('window',function($,exports,module){
         //fixed xiaomi 2s bug
         fontSize = parseInt(fontSize,10);
         fontSize = isNaN(fontSize)?0:fontSize;
-    
-    try{
-      extraInfo = appcan.isString(extraInfo) ? extraInfo : JSON.stringify(extraInfo);
-      extraInfo = JSON.parse(extraInfo);
-      if(!extraInfo.extraInfo){
-        extraInfo = {extraInfo:extraInfo};
-      }
-      extraInfo = JSON.stringify(extraInfo);
-    }catch(e){
-      extraInfo = extraInfo || '';
-    }
-    
+		
+		try{
+			extraInfo = appcan.isString(extraInfo) ? extraInfo : JSON.stringify(extraInfo);
+			extraInfo = JSON.parse(extraInfo);
+			if(!extraInfo.extraInfo){
+				extraInfo = {extraInfo:extraInfo};
+			}
+			extraInfo = JSON.stringify(extraInfo);
+		}catch(e){
+			extraInfo = extraInfo || '';
+		}
+		
         //fixed ios bug
         if(uexWidgetOne.platformName && uexWidgetOne.platformName.toLowerCase().indexOf('ios') > -1){
             var args = ['"'+name+'"',dataType,'"'+url+'"','"'+data+'"',left,top,width,height,fontSize,type,bottomMargin,"'"+extraInfo+"'"];
@@ -8924,14 +9143,27 @@ window.appcan && appcan.define('window',function($,exports,module){
         uexWindow.alert(title,content,buttons[0]);
     }
     
+    var popConfirmCallQueue =[];
+    function processpopConfirmCallQueue(data,dataType,opId){
+        if(popConfirmCallQueue.length > 0){
+            $.each(popConfirmCallQueue,function(i,v){
+                if(v && appcan.isFunction(v)){
+                    if(dataType != 2){
+                        return v(new Error('confirm error'));
+                    }
+                    v(null,data,dataType,opId);
+                }
+            });
+        }
+        popConfirmCallQueue=[];
+        return;
+    }
     /*
         弹出一个提示框
         @param String title 对话框的标题
         @param String content 对话框的内容
         @param Array buttons 按钮文字
-        
-        
-        
+       
     */
     function popConfirm(title,content,buttons,callback){
         if(arguments.length === 1 && appcan.isPlainObject(title)){
@@ -8942,11 +9174,9 @@ window.appcan && appcan.define('window',function($,exports,module){
         }
         buttons = appcan.isArray(buttons)?buttons:[buttons];
         if(appcan.isFunction(callback)){
+            popConfirmCallQueue.push(callback);
             uexWindow.cbConfirm = function(optId,dataType,data){
-                if(dataType != 2){
-                    return callback(new Error('confirm error'));
-                }
-                callback(null,data,dataType,optId);
+                processpopConfirmCallQueue(data,dataType,optId);
             };
         }
         
@@ -8997,7 +9227,11 @@ window.appcan && appcan.define('window',function($,exports,module){
         if(arguments.length === 1 && appcan.isPlainObject(name)){
             name = name['name'];
         }
-        uexWindow.bringPopoverToFront(name);
+        if(!name){
+            uexWindow.bringToFront();
+        }else{
+            uexWindow.bringPopoverToFront(name);
+        }
     }
     
     /*
@@ -9010,7 +9244,11 @@ window.appcan && appcan.define('window',function($,exports,module){
         if(arguments.length === 1 && appcan.isPlainObject(name)){
             name = name['name'];
         }
-        uexWindow.sendPopoverToBack(name);
+        if(!name){
+            uexWindow.sendToBack();
+        }else{
+            uexWindow.sendPopoverToBack(name);
+        }
     }
     
     /*
@@ -9166,27 +9404,27 @@ window.appcan && appcan.define('window',function($,exports,module){
             left = popName['left'];
             dataType = popName['dataType'];
             content = popName['content'];
-      extraInfo = popName['extraInfo']
+			extraInfo = popName['extraInfo']
             popName = popName['popName'];
         }
         dataType = dataType || 0;
         flag = flag || 0;
         indexSelected = parseInt(indexSelected,10);
         indexSelected = isNaN(indexSelected)? 0 : indexSelected;
-        width = width || 0;
-        height = height || 0;
+        width = width || '';
+        height = height || '';
         change = change || function(){};
-    
-    try{
-      extraInfo = appcan.isString(extraInfo) ? extraInfo : JSON.stringify(extraInfo);
-      extraInfo = JSON.parse(extraInfo);
-      if(!extraInfo.extraInfo){
-        extraInfo = {extraInfo:extraInfo};
-      }
-      extraInfo = JSON.stringify(extraInfo);
-    }catch(e){
-      extraInfo = extraInfo || '';
-    }
+		
+		try{
+			extraInfo = appcan.isString(extraInfo) ? extraInfo : JSON.stringify(extraInfo);
+			extraInfo = JSON.parse(extraInfo);
+			if(!extraInfo.extraInfo){
+				extraInfo = {extraInfo:extraInfo};
+			}
+			extraInfo = JSON.stringify(extraInfo);
+		}catch(e){
+			extraInfo = extraInfo || '';
+		}
         
         //fixed android 如果少任何一个key就会crash bug
         if(!appcan.isString(content)){
@@ -9196,7 +9434,7 @@ window.appcan && appcan.define('window',function($,exports,module){
                 };
             }
         }else{
-            content = JSON.parse(conent);
+            content = JSON.parse(content);
             if(!content.content){
                 content={
                     content:content
@@ -9465,6 +9703,544 @@ window.appcan && appcan.define('window',function($,exports,module){
         enable = enable!=1?0:enable;
         uexWindow.setMultilPopoverFlippingEnbaled(enable);
     }
+
+    var popActionSheetCallQueue =[];
+    function processpopActionSheetCallQueue(data,dataType,opId){
+        if(popActionSheetCallQueue.length > 0){
+            $.each(popActionSheetCallQueue,function(i,v){
+                if(v && appcan.isFunction(v)){
+                    if(dataType != 2){
+                        return v(new Error(' error'));
+                    }
+                    v(null,data,dataType,opId);
+                }
+            });
+        }
+        popActionSheetCallQueue=[];
+        return;
+    }
+    /*
+        弹出一个可选的菜单列表
+        @param String title 菜单列表的标题
+        @param String cancelText 取消按钮上显示文字内容
+        @param Array  buttons 显示在菜单列表上的文字集合
+        @param Function callback  菜单列表关闭的回调 
+        buglly:需添加opId参数传入与回调对应
+        
+    */
+    function popActionSheet(title, cancelText, buttons,callback){
+        if(arguments.length === 1 && appcan.isPlainObject(title)){
+            callback = title['callback'];
+            buttons = title['buttons'];
+            cancelText = title['cancelText'];
+            title = title['title'];
+        }
+        buttons = appcan.isArray(buttons)?buttons:[buttons];
+        if(appcan.isFunction(callback)){
+            uexWindow.cbActionSheet  = function(optId,dataType,data){
+                //callback(null,data,dataType,optId);
+                popActionSheetCallQueue.push(callback);
+                processpopActionSheetCallQueue(data,dataType,opId);
+            };
+        }
+        
+        uexWindow.actionSheet(title,cancelText,buttons);
+    }
+
+        /*
+     * 设置侧滑窗口信息
+     * @param Object leftSliding 侧滑左窗口信息 JSON对象{width:240,url:"uexWindow_left.html"}
+     * @param Object rightSliding 侧滑左窗口信息 JSON对象{width:240,url:"uexWindow_right.html"}
+     * 支持只设置一个对象参数，例如： {leftSliding: {width:240,url:"uexWindow_left.html"},rightSliding: {width:240,url:"uexWindow_left.html"}}
+     */
+    function setSlidingWindow(leftSliding,rightSliding,animationId,bg){
+        var argObj = null;
+        if(arguments.length === 1 && appcan.isPlainObject(leftSliding)){
+            argObj = JSON.stringify(leftSliding);
+        }else{
+            argObj = {};
+            if(appcan.isPlainObject(leftSliding)){
+                argObj.leftSliding = leftSliding;
+            }else{
+                argObj.leftSliding = JSON.parse(leftSliding);
+            }
+            if(appcan.isPlainObject(rightSliding)){
+                argObj.rightSliding = rightSliding;
+            }else{
+                argObj.rightSliding = JSON.parse(rightSliding);
+            }
+            argObj.animationId = animationId||'1';
+            argObj.bg = bg ||'';
+            argObj = JSON.stringify(argObj);
+        }
+        uexWindow.setSlidingWindow(argObj);
+    }
+    /*
+        打开或关闭侧滑窗口，注：打开侧滑窗口前，需先调用setSlidingWindow设置打开的侧滑窗口信息
+        @param Number mark 必选 左右侧窗口标识，0：左侧，1：右侧
+        @param Number reload 可选 是否重新加载页面 ，1：重新加载
+     * */
+    function toggleSlidingWindow(mark,reload){
+        var argObj = null;
+        if(!appcan.isPlainObject(mark) && !JSON.parse(mark)){
+            argObj = {};
+            argObj.mark = mark;
+            if(reload) argObj.reload = reload;
+        }else{
+            argObj = mark;
+        }
+        if(appcan.isPlainObject(argObj)){
+            argObj = JSON.stringify(argObj);
+        }
+        uexWindow.toggleSlidingWindow(argObj);
+    }
+    
+    /*
+     设置侧滑窗口是否可用
+     * @param Number enable 侧滑窗口是否可用，0：不可用，1：可用
+     * */
+    function setSlidingWindowEnabled(enable){
+        var enable = parseInt(enable,10);
+        enable = isNaN(enable)?0:enable;
+        enable = enable!=0?1:enable;
+        uexWindow.setSlidingWindowEnabled(enable);
+    }
+
+    var urlQueryQueue =[];
+    /*
+        处理回调获取加载页面时传入的参数
+        @param Number data 传递过来的数据信息
+        @param Number dataType 回调返回的数据类型
+        @param Number opId 该回调的操作Id
+    */
+    function processGetUrlQueryQueue(data,dataType,opId){
+        if(urlQueryQueue.length > 0){
+            $.each(urlQueryQueue,function(i,v){
+                if(v && appcan.isFunction(v)){
+                    v(data,dataType,opId);
+                }
+            });
+        }
+        urlQueryQueue=[];
+        return;
+    }
+
+    /*
+        获取加载页面时传入的参数
+    @param Function callback 获取成功后的回调函数
+    */
+    function getUrlQuery(callback){
+        if(arguments.length === 1 && appcan.isPlainObject(callback)){
+            callback = callback['callback'];
+        }
+        if(!appcan.isFunction(callback)){
+            return;
+        }
+        urlQueryQueue = urlQueryQueue || [],
+        urlQueryQueue.push(callback);
+        uexWindow.cbGetUrlQuery = function(opId, dataType, data){
+            processGetUrlQueryQueue(data,dataType,opId);
+        };
+
+        uexWindow.getUrlQuery();
+    }
+    
+    var slidingWindowStateQueue =[];
+    /*
+        处理回调返回的状态信息
+        @param string state 回调返回的状态信息
+    */
+    function processSlidingWindowStateQueue(state){
+        if(slidingWindowStateQueue.length > 0){
+            $.each(slidingWindowStateQueue,function(i,v){
+                if(v && appcan.isFunction(v)){
+                    v(state);
+                }
+            });
+        }
+        slidingWindowStateQueue=[];
+        return;
+    }
+
+    /*
+        获取侧滑窗口显示情况
+        @param Function callback 获取成功后的回调函数
+    */
+    function getSlidingWindowState(callback){
+        if(arguments.length === 1 && appcan.isPlainObject(callback)){
+            callback = callback['callback'];
+        }
+        if(!appcan.isFunction(callback)){
+            return;
+        }
+        slidingWindowStateQueue = slidingWindowStateQueue || [];
+        slidingWindowStateQueue.push(callback);
+        uexWindow.cbSlidingWindowState = function(state){
+            processSlidingWindowStateQueue(state);
+        };
+        uexWindow.getSlidingWindowState();
+    }
+
+    /*
+     设置状态条上字体的颜色
+     * @param Number type 状态条上字体的颜色，0为白色(iOS7以上为透明底,iOS7以下为黑底)， 1为黑色(iOS7以上为透明底,iOS7以下为白底)
+     * */
+    function setStatusBarTitleColor(type){
+        var type = parseInt(type,10);
+        type = isNaN(type)?0:type;
+        type = type!=0?1:type;
+        uexWindow.setStatusBarTitleColor(type);
+    }
+
+    /*
+    在多窗口机制中，前进到下一个window
+    @param Number animateId 动画类型Id
+        animateId:动画类型Id
+            0: 无动画
+            1: 从左向右推入
+            2: 从右向左推入
+            3: 从上向下推入
+            4: 从下向上推入
+            5: 淡入淡出
+            6: 左翻页
+            7: 右翻页
+            8: 水波纹
+            9: 由左向右切入
+          10: 由右向左切入
+          11: 由上先下切入
+          12: 由下向上切入
+          13: 由左向右切出
+          14: 由右向左切出
+          15: 由上向下切出
+          16: 由下向上切出
+    @param Number animDuration 动画持续时长，单位为毫秒，默认为260毫秒
+
+    */
+    function windowForward(animId,animDuration){
+        var argObj = null;
+        if(arguments.length === 1 && appcan.isPlainObject(animId)){
+            argObj = animId;
+            animId = argObj['animId'];
+            animDuration = argObj['animDuration'];
+        }
+        if(animId){
+            animId = parseInt(animId,10);
+            if(isNaN(animId) || animId > 16 || animId < 0){
+                animId = 0;
+            }
+        }
+        if(animDuration){
+            animDuration = parseInt(animDuration,10);
+            animDuration = isNaN(animDuration)?'':animDuration;
+        }
+        animDuration = animDuration || 260;
+        uexWindow.windowForward(animId,animDuration);
+    }
+    
+     /*
+    在多窗口机制中，返回到上一个窗口:在多窗口机制中，用于返回上一个window，比如在A window中appcan.window.open了B window，那么在Bwindow中返回Awindow就可使用此方法。
+    @param Number animateId 动画类型Id
+        animateId:动画类型Id
+            0: 无动画
+            1: 从左向右推入
+            2: 从右向左推入
+            3: 从上向下推入
+            4: 从下向上推入
+            5: 淡入淡出
+            6: 左翻页
+            7: 右翻页
+            8: 水波纹
+            9: 由左向右切入
+          10: 由右向左切入
+          11: 由上先下切入
+          12: 由下向上切入
+          13: 由左向右切出
+          14: 由右向左切出
+          15: 由上向下切出
+          16: 由下向上切出
+    @param Number animDuration 动画持续时长，单位为毫秒，默认为260毫秒
+
+    */
+    function windowBack(animId,animDuration){
+        var argObj = null;
+        if(arguments.length === 1 && appcan.isPlainObject(animId)){
+            argObj = animId;
+            animId = argObj['animId'];
+            animDuration = argObj['animDuration'];
+        }
+        if(animId){
+            animId = parseInt(animId,10);
+            if(isNaN(animId) || animId > 16 || animId < 0){
+                animId = 0;
+            }
+        }
+        if(animDuration){
+            animDuration = parseInt(animDuration,10);
+            animDuration = isNaN(animDuration)?'':animDuration;
+        }
+        animDuration = animDuration || 260;
+        uexWindow.windowBack(animId,animDuration);
+    }
+    
+    /*
+     调用appcan.window.open方法且其中type为64时打开的主窗口ready方法中调用：预加载浮动窗口开始
+     */
+    function preOpenStart(){
+        uexWindow.preOpenStart();
+    }
+    
+    /*
+     调用appcan.window.open方法且其中type为64时打开的主窗口ready方法中调用：预加载浮动窗口结束
+     */
+    function preOpenFinish(){
+        uexWindow.preOpenFinish();
+    }
+
+    var stateQueue =[];
+    /*
+        处理回调返回的状态信息
+        @param Number data 回调返回的数据信息
+        @param Number dataType 回调返回的数据类型
+        @param Number opId 该回调的操作Id
+    */
+    function processGetStateQueue(data,dataType,opId){
+        if(stateQueue.length > 0){
+            $.each(stateQueue,function(i,v){
+                if(v && appcan.isFunction(v)){
+                    v(null,data,dataType,opId);
+                }
+            });
+        }
+        stateQueue=[];
+        return;
+    }
+
+    /*
+        获取当前窗口处于前台还是后台
+    @param Function callback(err,data,dataType) 获取成功后的回调函数
+           err:第一个参数是Error对象如果为空则表示没有错误，否则表示操作出错了，
+           data:表示返回的数据，0：前台；1：后台,
+           dataType:操作结果的数据类型，默认为2：Number类型
+           optId:该操作id
+    */
+    function getState(callback){
+        if(arguments.length === 1 && appcan.isPlainObject(callback)){
+            callback = callback['callback'];
+        }
+        if(!appcan.isFunction(callback)){
+            return;
+        }
+        stateQueue.push(callback);
+        //data:返回的数据，0：前台；1：后台
+        try{
+            uexWindow.cbGetState = function(opId,dataType,data){
+                processGetStateQueue(data,dataType,opId);
+            };
+        }catch(e){
+            callback(e);
+        }
+        
+        uexWindow.getState();
+    }
+
+    /*
+        发送消息到状态栏
+        @param Number title 必选  标题
+        @param Number msg 必选 消息
+     * */
+    function statusBarNotification(title,msg){
+        var argObj = null;
+        if(arguments.length === 1 && appcan.isPlainObject(title)){
+            argObj = title;
+            title = argObj['title'] || '';
+            msg = argObj['msg'] || '';
+        }
+        title = title || '';
+        msg = msg || '';
+        if(msg == ''){
+            return;
+        }
+        uexWindow.statusBarNotification(title,msg);
+    }
+
+    /*
+     设置内容超过一屏滚动的时候滚动条的显示和隐藏
+     * @param Number enable 滚动条的显示和隐藏，0：隐藏，1：显示
+     * */
+    function setWindowScrollbarVisible(enable){
+        var enable = parseInt(enable,10);
+        enable = isNaN(enable)?0:enable;
+        enable = enable!=0?'true':'false';
+        uexWindow.setWindowScrollbarVisible(enable);//android引擎只接受字符串true,false
+    }
+    
+    /*
+            隐藏弹动效果
+        @param Number type 隐藏的位置，0:顶端，1：底部
+     * */
+    function hiddenBounceView(type){
+        type = type!=1?0:type;
+        uexWindow.hiddenBounceView(type);
+    }
+    
+    /*
+            显示弹动效果
+        @param Number type 弹动的位置，0：顶端弹动；1：底部弹动
+        @param String color 弹动显示部位的颜色值，内容不超过一屏时底部弹动内容不显示,
+        @param String flag 是否显示内容，1：显示；0：不显示
+     * * */
+    function showBounceView(type,color,flag){
+        var argObj = null;
+        if(arguments.length === 1 && appcan.isPlainObject(type)){
+            argObj = type;
+            type = argObj["type"] || 0;
+            color = argObj["color"] ;
+            flag = argObj["flag"] || 1;
+        }
+        type = type || 0;
+        flag = flag || 1;
+        uexWindow.showBounceView(type,color,flag);
+    }
+    
+    /*
+     将当前浮动窗口插入到指定浮动窗口之上
+     @param String name 目标浮动窗口的名称
+     * */
+    function insertAbove(name){
+        if(arguments.length === 1 && appcan.isPlainObject(name)){
+            name = name["name"];
+        }
+        if(!name){
+            return;
+        }
+        uexWindow.insertAbove(name);
+    }
+    
+    /*
+     将当前浮动窗口插入到指定浮动窗口之下
+     @param String name 目标浮动窗口的名称
+     * */
+    function insertBelow(name){
+        if(arguments.length === 1 && appcan.isPlainObject(name)){
+            name = name["name"];
+        }
+        if(!name){
+            return;
+        }
+        uexWindow.insertBelow(name);
+    }
+    
+    /*
+     将指定浮动窗口插入到另一浮动窗口之上,只在主窗口中有效
+     @param String nameA 指定浮动窗口A的名称
+     @param String nameB 指定浮动窗口B的名称
+     * */
+    function insertPopoverAbovePopover (nameA,nameB){
+        var argObj = null;
+        if(arguments.length === 1 && appcan.isPlainObject(nameA)){
+            argObj = nameA;
+            nameA = argObj["nameA"];
+            nameB = argObj["nameB"];
+        }
+        if(!nameA || !nameB){
+            return;
+        }
+        uexWindow.insertPopoverAbovePopover(nameA,nameB);
+    }
+    
+    /*
+     将指定浮动窗口插入到另一浮动窗口之下,只在主窗口中有效
+     @param String nameA 指定浮动窗口A的名称
+     @param String nameB 指定浮动窗口B的名称
+     * */
+    function insertPopoverBelowPopover (nameA,nameB){
+        var argObj = null;
+        if(arguments.length === 1 && appcan.isPlainObject(nameA)){
+            argObj = nameA;
+            nameA = argObj["nameA"];
+            nameB = argObj["nameB"];
+        }
+        if(!nameA || !nameB){
+            return;
+        }
+        uexWindow.insertPopoverBelowPopover(nameA,nameB);
+    }
+    
+    /*
+    设置当前窗口显示和隐藏，该接口仅对显示在屏幕上且不被隐藏的window起作用。（即open该window时，flag传入的是256）
+        @param Number type 显示或隐藏，0-显示；1-隐藏
+     * */
+    function setWindowHidden(type){
+        type = type!=1?0:type;
+        uexWindow.setWindowHidden(type);
+    }
+
+    /*
+     将指定窗口A插入到另一窗口B之上，该接口仅对显示在屏幕上且不被隐藏的window起作用。（即open该window时，flag传入的是256）
+     @param String nameA 指定窗口A的名称
+     @param String nameB 指定窗口B的名称
+     * */
+    function insertWindowAboveWindow (nameA,nameB){
+        var argObj = null;
+        if(arguments.length === 1 && appcan.isPlainObject(nameA)){
+            argObj = nameA;
+            nameA = argObj["nameA"];
+            nameB = argObj["nameB"];
+        }
+        if(!nameA || !nameB){
+            return;
+        }
+        uexWindow.insertWindowAboveWindow(nameA,nameB);
+    }
+    
+    /*
+     将指定窗口A插入到另一窗口B之下，该接口仅对显示在屏幕上且不被隐藏的window起作用。（即open该window时，flag传入的是256）
+     @param String nameA 指定窗口A的名称
+     @param String nameB 指定窗口B的名称
+     * */
+    function insertWindowBelowWindow (nameA,nameB){
+        var argObj = null;
+        if(arguments.length === 1 && appcan.isPlainObject(nameA)){
+            argObj = nameA;
+            nameA = argObj["nameA"];
+            nameB = argObj["nameB"];
+        }
+        if(!nameA || !nameB){
+            return;
+        }
+        uexWindow.insertWindowBelowWindow(nameA,nameB);
+    }
+
+    var popoverLoadFinishInRootWndCallList = [];
+    
+    /*
+        处理浮动窗口加载完成回调事件
+        @param String name:浮动窗口的名称
+        @param String url:浮动窗口的url；当浮动窗口加载的是本地网页时，url返回网页的绝对路径（file:// 开头）当浮动窗口加载的是网络上的网页时，url返回网址（http:// 开头）
+    */
+    function processPopoverLoadFinishInRootWnd(name,url){
+        $.each(popoverLoadFinishInRootWndCallList,function(i,v){
+            if(appcan.isFunction(v)){
+                v(name,url);
+            }
+        });
+        popoverLoadFinishInRootWndCallList = [];
+        return;
+    }
+    
+    /*
+        浮动窗口加载完成的监听方法
+        @param Function callback(name,url):浮动窗口加载完成的回调函数
+            name:浮动窗口的名称
+            url:浮动窗口的url；当浮动窗口加载的是本地网页时，url返回网页的绝对路径（file:// 开头）当浮动窗口加载的是网络上的网页时，url返回网址（http:// 开头）
+    */
+    function onPopoverLoadFinishInRootWnd(callback){
+        if(!appcan.isFunction(callback)){
+            return;
+        }
+        popoverLoadFinishInRootWndCallList.push(callback);
+        uexWindow.onPopoverLoadFinishInRootWnd = processPopoverLoadFinishInRootWnd;
+    }
     
     
     //默认绑定状态
@@ -9515,9 +10291,37 @@ window.appcan && appcan.define('window',function($,exports,module){
         stateChange:onStateChange,
         swipeLeft:onSwipeLeft,
         swipeRight:onSwipeRight,
-    getBounceStatus:getBounceStatus,
-        setMultilPopoverFlippingEnbaled:setMultilPopoverFlippingEnbaled
+		getBounceStatus:getBounceStatus,
+        setMultilPopoverFlippingEnbaled:setMultilPopoverFlippingEnbaled,
         
+        actionSheet:popActionSheet,
+        scaleAnim:scaleAnim,
+        alphaAnim:alphaAnim,
+        rotateAnim:rotateAnim,
+        customAnim:customAnim,
+        setSlidingWindow:setSlidingWindow,
+        toggleSlidingWindow:toggleSlidingWindow,
+        getSlidingWindowState:getSlidingWindowState,
+        setSlidingWindowEnabled:setSlidingWindowEnabled,
+        getUrlQuery:getUrlQuery,
+        setStatusBarTitleColor:setStatusBarTitleColor,
+        windowForward:windowForward,
+        windowBack:windowBack,
+        preOpenStart:preOpenStart,
+        preOpenFinish:preOpenFinish,
+        getState:getState,
+        //statusBarNotification:statusBarNotification,//android正常，IOS调用本地推送只显示了msg没显示title
+        setWindowScrollbarVisible:setWindowScrollbarVisible,
+        insertPopoverBelowPopover:insertPopoverBelowPopover,
+        insertPopoverAbovePopover:insertPopoverAbovePopover,
+        insertBelow:insertBelow,
+        insertAbove:insertAbove,
+        insertWindowBelowWindow:insertWindowBelowWindow,
+        insertWindowAboveWindow:insertWindowAboveWindow,
+        //setWindowHidden:setWindowHidden,IOS,android不同有问题
+        showBounceView:showBounceView,
+        hiddenBounceView:hiddenBounceView,
+        onPopoverLoadFinishInRootWnd:onPopoverLoadFinishInRootWnd
     };
     
     appcan.extend(appcanWindow,appcan.eventEmitter);
@@ -9550,7 +10354,7 @@ window.appcan && appcan.define('frame',function($,exports,module){
         openMulti:appWin.openMultiPopover,
         closeMulti:appWin.closeMultiPopover,
         setBounce:appWin.setBounce,
-    getBounceStatus:appWin.getBounceStatus,
+		getBounceStatus:appWin.getBounceStatus,
         resetBounce:appWin.resetBounceView,
         open:function(id,url,left,top,name,index,change,extraInfo){
             var argObj = null;
@@ -10065,3 +10869,663 @@ appcan.define("icache", function($, exports, module) {
         return new iCache(option);
     };
 })
+;/*
+    author:jiaobingqian
+    email:bingqian.jiao@zymobi.com
+    description:构建appcan widget模块
+    create:2015.11.26
+    update:______/___author___
+
+*/
+/*global window,appcan,uexWidget*/
+window.appcan && appcan.define('widget',function($,exports,module){
+    
+    /*
+    在当前widget加载一个子widget
+    @param String appId 子widget的appId
+    @param String animiId 子widget载入时的动画id:
+        0：无动画
+        1:从左向右推入
+        2:从右向左推入
+        3:从上向下推入
+        4:从下向上推入
+        5:淡入淡出
+        6:左翻页
+        7:右翻页
+        8:水波纹
+        9:由左向右切入
+        10:由右向左切入
+        11:由上先下切入
+        12:由下向上切入
+
+        13:由左向右切出
+        14:由右向左切出
+        15:由上向下切出
+        16:由下向上切出
+    @param String funName 方法名，子widget结束时将String型的任意字符回调给该方法，可为空。 注意：只在主窗口中有效，
+    浮动窗口中无效
+    @param String info 传给子widget的信息
+    @param String animDuration 动画持续时长，单位为毫秒，默认200毫秒
+    @param Function callback(err,data,dataType,opId) 回调函数
+        err:Error对象，如果为空表示没有错误
+        data:回调返回的数据，0-成功 1-失败
+        dataType:回调返回的数据类型，默认为2：Int类型
+        opId:操作ID，在此函数中不起作用，可忽略
+
+     */
+    function startWidget(appId,animId,funName,info,animDuration,callback) {
+        var uexObj = null;
+        if (arguments.length ===1 && appcan.isPlainObject(appId)) {
+            uexObj = appId;
+            appId = uexObj['appId'];
+            animId = uexObj['animId']||0;
+            funName = uexObj['funName'];
+            info = uexObj['info'];
+            animDuration = uexObj['animDuration']||'';
+            callback = uexObj['callback']||function(){};
+        }
+        if(!appId){
+            return callback(new Error('appId is empty'));
+        }
+        animId = animId||0;
+        animDuration = animDuration||'';
+        callback = callback || function(){};
+        
+        if(animId){
+            animId = parseInt(animId,10);
+            if(isNaN(animId) || animId > 16 || animId < 0){
+                animId = 0;
+            }
+        }
+        if(animDuration){
+            animDuration = parseInt(animDuration,10);
+            animDuration = isNaN(animDuration)?'':animDuration;
+        }
+        uexWidget.cbStartWidget = function(opId,dataType,data){
+            callback(null,data,dataType,opId);
+        }
+        uexWidget.startWidget(appId,animId,funName,info,animDuration);
+    }
+    /*
+    退出一个widget
+    @param String resultInfo 此widget结束时，传递给opener的信息
+    @param String appId 要结束的widget的appId，为空时退出的是当前的widget
+    @param Number isWgtBG 结束此widget的方式，0表示销毁该widget，下次再调 用startWidget时，重新打开；1表示把该widget置于
+    后台，下次再调用startWidget时，不重新打开，操作数据 全部保存。不传或为空时，默认为0。注意传该参数时，必须要传appId参数。
+     */
+    function finishWidget(resultInfo,appId,isWgtBG) {
+        var uexObj = null;
+        if (arguments.length ===1 && appcan.isPlainObject(resultInfo)) {
+            uexObj = resultInfo;
+            resultInfo = uexObj['resultInfo'];
+            appId = uexObj['appId'];
+            isWgtBG = uexObj['isWgtBG'];
+        }
+        if(resultInfo && appId && isWgtBG){
+            uexWidget.finishWidget(resultInfo,appId,isWgtBG);
+        }else if(resultInfo && appId){
+            uexWidget.finishWidget(resultInfo,appId);
+        }else{
+            uexWidget.finishWidget(resultInfo);
+        }
+
+        
+    }
+
+    /*
+    删除一个widget
+    @param String appId  widget的appId，主widget不能被删除
+    @param Function callback(err,data,dataType,opId) 回调函数
+        err:Error对象，如果为空表示没有错误
+        data:回调返回的数据，0-成功 1-失败
+        dataType:回调返回的数据类型，默认为2：Int类型
+        opId:操作ID，在此函数中不起作用，可忽略
+     */
+     function removeWidget(appId,callback) {
+        var uexObj = null;
+        if (arguments.length ===1 && appcan.isPlainObject(appId)) {
+            uexObj = appId;
+            appId = uexObj['appId'];
+            callback = uexObj['callback']||function(){};
+        }
+        uexWidget.cbRemoveWidget = function(opId,dataType,data){
+            callback(null,data,dataType,opId);
+        }
+
+        uexWidget.removeWidget(appId);
+    }
+    /*
+    检查当前widget是否有更新
+    @param Function callback(err,data,dataType,opId) 回调函数
+        err:Error对象，如果为空表示没有错误
+        data:检查结果0- 需要更新 1- 不需要更新 2- 错误
+        dataType:回调返回的数据类型，默认为2：Int类型
+        opId:操作ID，在此函数中不起作用，可忽略
+     */
+    function checkUpdate(callback) {
+        var uexObj = null;
+        
+        if (arguments.length === 1 && appcan.isPlainObject(callback)) {
+            callback = uexObj['callback']||function(){};
+        }
+        callback = callback || function(){};
+        try{
+            uexWidget.cbCheckUpdate = function(opId,dataType,data){
+                var res = JSON.parse(data);
+                var resData = res.result ||2;
+                callback(null,resData,dataType,opId);
+            }
+        }catch(e){
+            callback(new Error("检查失败！"));
+        }
+        uexWidget.checkUpdate();
+    }
+    /*
+    根据相关信息启动一个第三方应用  IOS版
+    @param String appInfo   第三方应用的URLSchemes
+     */
+    function loadApp(appInfo) {
+        var uexObj = null;
+        if (arguments.length ===1 && appcan.isPlainObject(appInfo)) {
+            uexObj = appInfo;
+            appInfo = uexObj['appInfo'];
+        }
+        uexWidget.loadApp(appInfo);
+    }
+    /*
+    根据相关信息启动一个第三方应用  Android版
+    @param String startMode 启动方式，0表示通过包名和类名启动，1表示通过Action启动
+    @param String optInfo   附加参数，键值对，{key:value}格式多个用英文”,”隔开
+    startMode 为0时，如下
+    @param String mainInfo  包名
+    @param String addInfo   类名，为空时启动应用入口类
+    startMode 为1时，如下
+    @param String mainInfo  action
+    @param String addInfo   category或data，json格式如下
+    @param Function callback(info) 启动第三方应用的回调方法，该方法在未成功调用第三方应用时回调。
+        info:(String)回调信息内容
+    
+     */
+    function startApp(startMode,mainInfo,addInfo,optInfo,callback) {
+        var uexObj = null;
+        if (arguments.length ===1 && appcan.isPlainObject(startMode)) {
+            uexObj = startMode;
+            startMode = uexObj["startMode"];
+            mainInfo = uexObj['mainInfo'];
+            addInfo = uexObj['addInfo'];
+            optInfo = uexObj['optInfo'];
+            callback = callback || function(){};
+        }
+
+        if(appcan.isFunction(callback)){
+            uexWidget.cbStartApp = function(info){
+                callback(info);
+            }
+        }
+
+        uexWidget.startApp(startMode,mainInfo,addInfo,optInfo);
+
+    }
+
+    /*
+    获取打开者传入此widget的相关信息。即调用startWidget时传入的info参数值。
+        @param Function callback(err,data,dataType,opId) 回调函数
+            err:Error对象，如果为空表示没有错误
+            data:返回的数据 本widget的打开者通过startWidget函数打开本widget时传入的info参数值
+            dataType:回调返回的数据类型，默认为2：Int类型
+            opId:操作ID，在此函数中不起作用，可忽略
+     */
+    function getOpenerInfo(callback) {
+        if (arguments.length === 1 && appcan.isPlainObject(callback)) {
+            callback = callback['callback'];
+        }
+        if(!appcan.isFunction(callback)){
+            return;
+        }
+
+        uexWidget.cbGetOpenerInfo = function(opId,dataType,data){
+            callback(null,data,dataType,opId);
+        };
+
+        uexWidget.getOpenerInfo();
+    }
+    /*
+    根据安装包所在路径安装一个apk(Android方法)
+    @param String appPath  apk所在路径
+     */
+    function installApp(appPath) {
+        var uexObj = null;
+        if (arguments.length ===1 && appcan.isPlainObject(appPath)) {
+            uexObj = appPath;
+            appPath = uexObj['appPath'];
+        }
+        uexWidget.installApp(appPath);
+    }
+
+    /*
+    获取推送消息,上报消息到管理后台
+    @param Function callback(err,data,dataType,opId) 回调函数
+            err:Error对象，如果为空表示没有错误
+            data:返回的数据 ,json格式字符串
+            dataType:回调返回的数据类型，默认为2：Int类型
+            opId:操作ID，在此函数中不起作用，可忽略
+     */
+    function  getPushInfo(callback) {
+        var uexObj = null;
+        if (arguments.length === 1 && appcan.isPlainObject(callback)) {
+            callback = uexObj['callback'];
+        }
+        if (!appcan.isFunction(callback)) {
+            return;
+        }
+        uexWidget.cbGetPushInfo = function(opId,dataType,data){
+            callback(null,data,dataType,opId);
+        };
+        uexWidget.getPushInfo();
+    }
+
+    /*
+    如果应用开启了推送功能，那么当有消息推送进来时，平台将调用指定的cbFunction函数通知页面。
+    @param String cbFunction 回调函数方法名
+     */
+    function setPushNotifyCallback(cbFunction) {
+        if (arguments.length === 1 && appcan.isPlainObject(cbFunction)) {
+            cbFunction = cbFunction['cbFunction'];
+        }
+
+        uexWidget.setPushNotifyCallback(cbFunction);
+    }
+
+    /*
+    设置推送用户信息
+    @param String uId 用户ID
+    @param String uNickName 用户昵称
+     */
+    function setPushInfo(uId,uNickName) {
+        var uexObj = null;
+        if (arguments.length ===1 && appcan.isPlainObject(uId)) {
+            uexObj = uId;
+            uId = uexObj['uId'];
+            uNickName = uexObj['uNickName'];
+        }
+        uexWidget.setPushInfo(uId,uNickName);
+    }
+
+    /*
+    设置推送服务的状态
+    @param Number state 推送服务状态0-关闭 1-开启
+     */
+     function setPushState(state) {
+        var uexObj = null;
+        if (arguments.length === 1 && appcan.isPlainObject(state)) {
+            uexObj = state;
+            state = uexObj['state'];
+        }
+        state = parseInt(state,10);
+        state = isNaN(state)?0:state;
+        state = state!=0?1:state;
+
+        uexWidget.setPushState(state);
+
+     }
+
+     /*
+     获取推送服务的状态
+     @param Function callback(err,data,dataType,opId) 回调函数
+        err:Error对象，如果为空表示没有错误
+        data:0-关闭 1-开启
+        dataType:参数类型，默认为2,Number类型
+        opId:操作ID，在此函数中不起作用，可忽略
+      */
+
+     function getPushState(callback){
+        var uexObj = null;
+        if (arguments.length === 1 && appcan.isPlainObject(callback)) {
+            callback = uexObj['callback'];
+        }
+        if (!appcan.isFunction(callback)) {
+            return;
+        }
+        uexWidget.cbGetPushState = function (opId,dataType,data){
+            callback(null,data,dataType,opId);
+        }
+
+        uexWidget.getPushState();
+
+     }
+
+     /*
+     是否安装某第三方应用
+     @param String appData 
+     @param Function callback(err,data,dataType,opId) 回调函数
+        err:Error对象，如果为空表示没有错误
+        data:返回结果：0-已安装；1-未安装。
+        dataType:参数类型，默认为2,Number类型
+        opId:操作ID，在此函数中不起作用，可忽略
+      */
+     function isAppInstalled(appData,callback) {
+        var uexObj = {};
+        var res = null;
+        if(arguments.length === 1 && appcan.isPlainObject(appData)){
+            uexObj = appData;
+            appData = uexObj["appData"];
+            callback = uexObj["callback"];
+        }
+
+        if(!appcan.isFunction(callback)){
+            return ;
+        }
+
+        uexWidget.cbIsAppInstalled = function(data){
+            try{
+                var res = JSON.parse(data);
+                callback(null,res.installed,2);
+            }catch(e){
+                callback(new Error('error'));
+            }
+        };
+
+        var param = {};
+        param.appData = appData;
+        param = JSON.stringify(param);
+
+        uexWidget.isAppInstalled(param);
+
+    }
+    
+    var loadByOtherAppCallQueue = [];
+    function processLoadByOtherAppCallQueue(jsonData){
+         $.each(loadByOtherAppCallQueue,function(i,v){
+            if(appcan.isFunction(v)){
+                v(jsonData);
+            }
+        })
+        
+     }
+     /*
+        默认被第三方应用调起事件
+    */
+    
+    function defaultLoadByOtherApp(){
+        var tmpLoadByOtherAppCall = null;
+        if(appcan.widget.onLoadByOtherApp){
+            tmpLoadByOtherAppCall = appcan.widget.onLoadByOtherApp;
+        }
+        appcanWidget.emit('loadByOtherApp');
+        tmpLoadByOtherAppCall && tmpLoadByOtherAppCall();
+    }
+        /*
+        被第三方应用调起的监听方法;所有的监听方法都得在root页面进行监听
+        @param function callback回调函数
+         */
+     function onLoadByOtherApp(callback) {
+        if (arguments.length ===1 && appcan.isPlainObject(callback)) {
+            callback = callback['callback'];
+        }
+        
+        loadByOtherAppCallQueue.push(callback);
+        uexWidget.onLoadByOtherApp = function(data){
+            processLoadByOtherAppCallQueue(data);
+        }
+        return;
+     }
+        
+     var suspendCallQueue = [];
+     function processSuspendCallQueue(){
+         $.each(suspendCallQueue,function(i,v){
+            if(appcan.isFunction(v)){
+                v();
+            }
+        })
+     }
+     /*
+        默认程序挂起事件
+    */
+    
+    function defaultSuspend(){
+        var tmpSuspendCall = null;
+        if(appcan.widget.onSuspend){
+            tmpSuspendCall = appcan.widget.onSuspend;
+        }
+        appcanWidget.emit('suspend');
+        tmpSuspendCall && tmpSuspendCall();
+    }
+     /*
+     程序挂起的监听方法
+     无参数
+      */
+     function onSuspend(callback) {
+        if(!appcan.isFunction(callback)){
+            return;
+        }
+        suspendCallQueue.push(callback);
+        uexWidget.onSuspend = processSuspendCallQueue;
+        return;
+     }
+
+
+     var resumeCallQueue = [];
+     function processResumeCallQueue(){
+         $.each(resumeCallQueue,function(i,v){
+            if(appcan.isFunction(v)){
+                v();
+            }
+        })
+     }
+     /*
+        默认状态改变事件
+    */
+    
+    function defaultResume(){
+        var tmpResumeCall = null;
+        if(appcan.widget.onResume){
+            tmpResumeCall = appcan.widget.onResume;
+        }
+        appcanWidget.emit('resume');
+        tmpResumeCall && tmpResumeCall();
+        
+        
+    }
+     /*
+     程序恢复的监听方法
+     无参数
+      */
+     function onResume(callback) {
+        if(!appcan.isFunction(callback)){
+            return;
+        }
+        resumeCallQueue.push(callback);
+        uexWidget.onResume = processResumeCallQueue;
+        return;
+     }
+     //默认绑定状态
+     appcan.ready(function(){
+        //绑定默认状态改变事件
+        //onLoadByOtherApp(defaultLoadByOtherApp);
+        //绑定默认swipe事件
+        onSuspend(defaultSuspend);
+        //绑定默认swipe事件
+        onResume(defaultResume);
+     });
+    //导出接口
+    var appcanWidget = module.exports = {
+        startWidget:startWidget,
+        finishWidget:finishWidget,
+        removeWidget:removeWidget,
+        checkUpdate:checkUpdate,
+        loadApp:loadApp,
+        startApp:startApp,
+        getOpenerInfo:getOpenerInfo,
+        installApp:installApp,
+        getPushInfo:getPushInfo,
+        setPushNotifyCallback:setPushNotifyCallback,
+        setPushInfo:setPushInfo,
+        setPushState:setPushState,
+        getPushState:getPushState,
+        isAppInstalled:isAppInstalled,
+        //loadByOtherApp:onLoadByOtherApp,
+        suspend:onSuspend,
+        resume:onResume 
+    };
+    
+    appcan.extend(appcanWidget,appcan.eventEmitter);
+
+});;/*
+    author:zhujinwang
+    email:jinwang.zhu@zymobi.com
+    description:构建appcan widget模块
+    create:2015.12.07
+    update:2015.12.08/jiaobingqian
+
+*/
+/*global window,appcan,uexWidgetOne*/
+appcan.define('widgetOne', function($, exports, module) {
+    /*
+    获取平台信息,回调中返回获取结果
+    @ param Function callback(err,data,dataType,opId)回调方法
+        err：当出现错误的时候error，否则为空
+        data：返回当前手机平台的类型，0：IOS；1：Android；2：Chrome
+        dataType: 返回数据类型，此方法未2，Number类型
+        opId:操作ID，在此函数中不起作用，可忽略
+     */
+    function getPlatform(callback) {
+        if (arguments.length === 1 && appcan.isPlainObject(callback)) {
+            callback = callback['callback'];
+        }
+        if (!appcan.isFunction(callback)) return;
+
+        try {
+            uexWidgetOne.cbGetPlatform = function(opId, dataType, data) {
+                callback(null, data, dataType, opId);
+            }
+            uexWidgetOne.getPlatform();
+        } catch (e) {
+            callback(e);
+        }
+    }
+
+    /*
+        获取系统名称
+    */
+    function getPlatformName() {
+        return uexWidgetOne.platformName;
+    }
+    /*
+        获取系统版本
+    */
+    function getPlatformVersion() {
+        return uexWidgetOne.platformVersion;
+    }
+
+    /*
+        获取是否为ios7风格
+    */
+    function isIOS7Style() {
+        return uexWidgetOne.iOS7Style || 0;
+    }
+
+    /*
+        判断是否全屏
+    */
+    function isFullScreen() {
+        return uexWidgetOne.isFullScreen;
+    }
+
+    /*
+        退出,0不弹否则弹提示框
+        @param Number flag：Number类型, 是否弹出关闭提示框，0-不弹，否则弹提示框;如果flag不是number类型则默认flag为0
+    */
+    function exit(flag) {
+        if (arguments.length === 1 && appcan.isPlainObject(flag)) {
+            flag = flag['flag'];
+        }
+        //flag是number类型
+        flag = isNaN(flag) ? 0 : flag;
+        uexWidgetOne.exit(flag);
+    }
+
+
+    /*
+    获取当前widget的信息
+    @param Function callback(err,data,dataType,opId) 回调方法
+        err：当出现错误的时候error，否则为空
+        data:返回当前widget相关信息，json数据字符串格式
+        dataType:返回数据类型，此方法中正常为1：JSON字符串类型
+        opId:操作ID，在此函数中不起作用，可忽略
+     */
+
+    function getCurrentWidgetInfo(callback) {
+        if (arguments.length === 1 && appcan.isPlainObject(callback)) {
+            callback = callback['callback'];
+        }
+        if (!appcan.isFunction(callback)) return;
+        try {
+            uexWidgetOne.cbGetCurrentWidgetInfo = function(opId, dataType, data) {
+                callback(null, data, dataType, opId);
+            }
+            uexWidgetOne.getCurrentWidgetInfo();
+        } catch (e) {
+            callback(e);
+        }
+    }
+
+    /*
+    清除当前应用的缓存，仅主widget调用此接口有效。
+    @param Function callback(err,data,dataType,opId) 回调方法
+        err:当出现错误的时候error，否则为空
+        data:返回清除缓存结果；0：成功；1：失败
+        dataType:回调返回数据类型，此处为2：Number
+        opId:操作ID，在此函数中不起作用，可忽略
+     */
+    function cleanCache(callback) {
+        if (arguments.length === 1 && appcan.isPlainObject(callback)) {
+            callback = callback['callback'];
+        }
+        if (!appcan.isFunction(callback)) return;
+        try {
+            uexWidgetOne.cbCleanCache = function(opId, dataType, data) {
+                callback(null, data, dataType, opId);
+            }
+            uexWidgetOne.cleanCache();
+        } catch (e) {
+            callback(e);
+        }
+    }
+
+    /*
+    获取主widget的appId
+    @param function(err,data,dataType,opId) callback回调方法
+        err：当出现错误的时候error，否则为空
+        data：返回主widget的appId
+        dataType:返回数据的格式，此处为0:text文本格式
+        opId: 操作ID，在此函数中不起作用，可忽略
+     */
+    function getMainWidgetId(callback) {
+        if (arguments.length === 1 && appcan.isPlainObject(callback)) {
+            callback = callback['callback'];
+        }
+        if (!appcan.isFunction(callback)) return;
+        try {
+            uexWidgetOne.cbGetMainWidgetId = function(opId, dataType, data) {
+                callback(null, data, dataType, opId);
+            }
+            uexWidgetOne.getMainWidgetId();
+        }catch(e){
+            callback(e);
+        }
+    }
+
+    var appcanWidgetOne = module.exports = {
+        getPlatform: getPlatform,
+        getPlatformName: getPlatformName,
+        getPlatformVersion: getPlatformVersion,
+        isIOS7Style: isIOS7Style,
+        isFullScreen: isFullScreen,
+        exit: exit,
+        getCurrentWidgetInfo: getCurrentWidgetInfo,
+        cleanCache: cleanCache,
+        getMainWidgetId: getMainWidgetId
+    };
+
+    //appcan.extend(appcanWidgetOne, appcan.eventEmitter);
+});

@@ -62,6 +62,8 @@ module.exports = function( grunt ) {
                         'src/appcan_window.js',
                         'src/plugin/appcan_ajaxoffline.js',
                         'src/plugin/appcan_icache.js',
+                        'src/appcan_widget.js',
+                        'src/appcan_widgetOne.js',
                 ],
                 dest: 'dist/appcan.js',
                 //dest: '../appcan_lib_test/android_iphone/dist/appcan.js',

@@ -4965,7 +4965,7 @@ window.$ === undefined && (window.$ = Zepto) && (window.jQuery = window.$)
     };
     
     //添加appcan 版本
-    appcan.version = '0.1.18';
+    appcan.version = '1.0.0 Beta';
     
     var errorInfo = {
         moduleName:'模块的名字必须为字符串并且不能为空！',

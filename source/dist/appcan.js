@@ -1,4 +1,4 @@
-/*! appcan v0.1.18 |  from 3g2win.com *//* Zepto v1.1.4 - zepto event ajax form ie - zeptojs.com/license */
+/*! appcan v1.0.0 Beta |  from 3g2win.com *//* Zepto v1.1.4 - zepto event ajax form ie - zeptojs.com/license */
 
 var Zepto = (function() {
   var undefined, key, $, classList, emptyArray = [], slice = emptyArray.slice, filter = emptyArray.filter,
@@ -4965,7 +4965,7 @@ window.$ === undefined && (window.$ = Zepto) && (window.jQuery = window.$)
     };
     
     //添加appcan 版本
-    appcan.version = '0.1.18';
+    appcan.version = '1.0.0 Beta';
     
     var errorInfo = {
         moduleName:'模块的名字必须为字符串并且不能为空！',

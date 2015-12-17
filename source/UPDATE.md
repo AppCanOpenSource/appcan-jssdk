@@ -135,3 +135,35 @@ appcan.file.read和appcan.file.write方法bug修复。
 appcan.ajax_offline.js中修复了在‘dataType：json'时离线文件缓存不成功的问题。appcan.slider.js中修复了slider卡顿的问题。同时appcan.slider.js中还添加了其他属性：hasContent默认为false，当hasContent设置为true的时候可以在slider中添加文字内容，当hasContent为false的时候slider中显示图片，设置size用来调节文字的大小；canDown默认为true，当canDown为true时图片区域/文字区域可以进行下拉，当canDown为false的时候图片区域/文字区域不能进行下拉；hasCircle默认为true，当hasCircle为true的时候在文字区域/图片区域显示圆点的位置提示标志，当hasCircle为false的时候圆点位置提示标志不显示，设置site可以设置圆点的位置。
 修复optionList调用add方法的右侧隐藏区域onclick回调未执行的bug
 
+v 1.0.0 Beta版
+
+新增appcan.widget模块（详见文档）
+
+新增appcan.widgetOne模块（详见文档）
+
+修改appcan.window模块新增以下方法
+
+	新增actionSheet方法
+	新增scaleAnim方法
+	新增alphaAnim方法
+	新增rotateAnim方法
+	新增customAnim方法
+	新增setSlidingWindow方法
+	新增toggleSlidingWindow方法
+	新增getSlidingWindowState方法
+	新增setSlidingWindowEnabled方法
+	新增getUrlQuery方法
+	新增setStatusBarTitleColor方法
+	新增windowForward方法
+	新增windowBack方法
+	新增preOpenStart方法
+	新增preOpenFinish方法
+	新增getState方法
+	新增setWindowScrollbarVisible方法
+	新增insertPopoverBelowPopover方法
+	新增insertPopoverAbovePopover方法
+	新增insertBelow方法
+	新增insertAbove方法
+	新增insertWindowBelowWindow方法
+	新增insertWindowAboveWindow方法
+	新增onPopoverLoadFinishInRootWnd方法

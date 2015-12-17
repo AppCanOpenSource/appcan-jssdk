@@ -27,7 +27,7 @@ window.appcan && appcan.define('window',function($,exports,module){
     */
     function monitorKey(id,callback){
         keyFuncMapper[id] = callback;
-        uexWindow.setReportKey(id);
+        uexWindow.setReportKey(id, 1);
         uexWindow.onKeyPressed = function(keyCode){
             keyFuncMapper[keyCode] && keyFuncMapper[keyCode](keyCode);    
         }

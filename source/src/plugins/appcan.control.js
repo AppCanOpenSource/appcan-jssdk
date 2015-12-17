@@ -62,12 +62,22 @@ appcan.extend(function(app, exports, module) {
     }
 
     function select(sel, cb) {
-        $("select", $(sel)).on("change", function(evt) {
+        //添加一个隐藏的选项
+        var emptyOption=$('<option>').hide();
+
+        //复用已选的sel对象
+        var selObj=$(sel);
+
+        //将刚才隐藏的那个选项添加到第一个选项前,这样就解决了选择第一个选项无触发onchange问题
+        selObj.find('option').eq(0).before(emptyOption);
+
+        $("select", selObj).on("change", function(evt) {
             var ele = $(evt.currentTarget);
             appcan.selectChange(evt.currentTarget);
             cb && cb(ele, ele.val());
         });
     }
+
 
     function touch(className, fun) {
         var ele = window.event.currentTarget || window.event.srcElement;

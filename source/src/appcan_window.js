@@ -35,7 +35,11 @@ window.appcan && appcan.define('window',function($,exports,module){
             callback = argObj['callback'] || function(){};
         }
         keyFuncMapper[id] = callback;
+<<<<<<< HEAD
         uexWindow.setReportKey(id,enable);
+=======
+        uexWindow.setReportKey(id, 1);
+>>>>>>> master
         uexWindow.onKeyPressed = function(keyCode){
             keyFuncMapper[keyCode] && keyFuncMapper[keyCode](keyCode);    
         }

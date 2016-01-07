@@ -62,12 +62,22 @@ appcan.extend(function(app, exports, module) {
     }
 
     function select(sel, cb) {
+        $("select",$(sel))[0].selectedIndex = -1;
+        var tl =$(sel).find("div[class=text]");
+        var sl =$(sel).find('select');
+        var op =sl.find('option');
+        var index =parseInt(sl.attr('selectedIndex'));
+        if(index != -1){
+            tl.html(sl[0].options[index].text);
+        }
+
         $("select", $(sel)).on("change", function(evt) {
             var ele = $(evt.currentTarget);
             appcan.selectChange(evt.currentTarget);
             cb && cb(ele, ele.val());
         });
     }
+
 
     function touch(className, fun) {
         var ele = window.event.currentTarget || window.event.srcElement;

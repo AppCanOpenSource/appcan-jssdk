@@ -80,6 +80,8 @@ module.exports = function( grunt ) {
                     'src/appcan_base.js',
                     'src/appcan_window.js',
                     'src/appcan_file.js',
+                    'src/appcan_widget.js',
+                    'src/appcan_widgetOne.js',
                 ],
                 dest: 'dist/appcan_base.js',
             },

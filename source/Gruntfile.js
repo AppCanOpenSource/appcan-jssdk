@@ -65,6 +65,7 @@ module.exports = function( grunt ) {
                         'src/appcan_widget.js',
                         'src/appcan_widgetOne.js',
                         'src/lib/backbone/backbone.stickit.js',
+                        'src/plugin/appcan_lazyload.js',
                 ],
                 dest: 'dist/appcan.js',
                 //dest: '../appcan_lib_test/android_iphone/dist/appcan.js',
